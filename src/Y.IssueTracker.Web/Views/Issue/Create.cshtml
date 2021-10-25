@@ -1,0 +1,82 @@
+﻿@model Y.IssueTracker.Web.Models.Issue.CreateIssueViewModel
+
+@{
+    ViewData["Title"] = "Create Issue";
+}
+
+<h1 class="mb-3">@ViewData["Title"]</h1>
+
+<div class="card">
+    <div class="card-body">
+        <form asp-controller="Issue" asp-action="Create" method="post">
+            <div class="mb-3 row">
+                <label asp-for="Name" class="col-sm-2 col-form-label"></label>
+
+                <div class="col-sm-10">
+                    <input asp-for="Name" class="form-control">
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label asp-for="Description" class="col-sm-2 col-form-label"></label>
+
+                <div class="col-sm-10">
+                    <textarea asp-for="Description" rows="8" class="form-control"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <div class="col-sm-12 border-bottom">
+                    <strong>Details</strong>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label asp-for="ProjectId" class="col-sm-2 col-form-label"></label>
+
+                <div class="col-sm-10">
+                    <select asp-for="ProjectId" asp-items="ViewBag.Projects" class="form-control"></select>
+                    <span asp-validation-for="ProjectId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label asp-for="CategoryId" class="col-sm-2 col-form-label"></label>
+
+                <div class="col-sm-10">
+                    <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-control"></select>
+                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label asp-for="PriorityId" class="col-sm-2 col-form-label"></label>
+
+                <div class="col-sm-10">
+                    <select asp-for="PriorityId" asp-items="ViewBag.Priorities" class="form-control"></select>
+                    <span asp-validation-for="PriorityId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <div class="col-sm-12 border-bottom">
+                    <strong>Progress</strong>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label asp-for="AssignedUserId" class="col-sm-2 col-form-label"></label>
+
+                <div class="col-sm-10">
+                    <select asp-for="AssignedUserId" asp-items="ViewBag.Users" class="form-control"></select>
+                    <span asp-validation-for="AssignedUserId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success">Create</button>
+            <a asp-area="" asp-controller="Issue" asp-action="Index" class="btn btn-link">Cancel</a>
+        </form>
+    </div>
+</div>

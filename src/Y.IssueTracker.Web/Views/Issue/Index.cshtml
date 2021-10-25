@@ -1,0 +1,43 @@
+﻿@model Y.IssueTracker.Issues.Results.IIssueForListItemResult[]
+
+@{
+    ViewData["Title"] = "Issues";
+}
+
+<h1 class="mb-3">@ViewData["Title"]</h1>
+
+<a asp-area="" asp-controller="Issue" asp-action="Create" class="btn btn-outline-primary mb-3">Create</a>
+
+<div class="card">
+    <div class="card-body">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Issue</th>
+                    <th>Status</th>
+                    <th>Assigned</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <a asp-area="" asp-controller="Issue" asp-action="View" asp-route-id="@item.Id">@item.Name</a>
+                            <small class="d-block text-muted">@item.Project / @item.Category / @item.Priority</small>
+                            <small class="d-block text-muted">Opened by @item.AuthorUserName on @item.CreatedOn.ToString(CultureInfo.InvariantCulture)</small>
+                        </td>
+
+                        <td>
+                            <div>@item.Status</div>
+                        </td>
+
+                        <td>
+                            <div>@item.AssignedUserName</div>
+                        </td>
+                    </tr>
+                }
+        </table>
+    </div>
+</div>

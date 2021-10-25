@@ -1,0 +1,13 @@
+﻿@{
+    ViewContext.ViewData.ModelState.TryGetValue(string.Empty, out var entry);
+}
+
+@if (entry != null && entry.Errors.Any())
+{
+    <div class="alert alert-danger" role="alert">
+        @foreach (var error in entry.Errors)
+        {
+            <div class="text-danger">@error.ErrorMessage</div>
+        }
+    </div>
+}

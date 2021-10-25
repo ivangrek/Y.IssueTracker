@@ -1,0 +1,265 @@
+﻿namespace Y.IssueTracker.Web.Controllers
+{
+    using System;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using Models.User;
+    using Users;
+
+    [Authorize]
+    public sealed class UserController : Controller
+    {
+        private readonly IUserCommandService userCommandService;
+        private readonly IUserQueryService userQueryService;
+
+        public UserController(
+            IUserCommandService userCommandService,
+            IUserQueryService userQueryService)
+        {
+            this.userCommandService = userCommandService;
+            this.userQueryService = userQueryService;
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Administrator,Manager")]
+        public async Task<IActionResult> Index()
+        {
+            var users = await this.userQueryService
+                .QueryAllAsync();
+
+            return View(users);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> View(Guid id)
+        {
+            var user = await this.userQueryService
+                .QueryByIdAsync(id);
+
+            return View(user);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Administrator,Manager")]
+        public IActionResult Create()
+        {
+            var viewModel = new CreateUserViewModel();
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrator,Manager")]
+        public async Task<IActionResult> Create(CreateUserViewModel viewModel)
+        {
+            var result = await this.userCommandService
+                .ExecuteAsync(viewModel);
+
+            if (result.Status is ResultStatus.Success)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (result.Status is ResultStatus.Invalid)
+            {
+                foreach (var (key, value) in result.Errors)
+                {
+                    ModelState.AddModelError(key, value);
+                }
+
+                return View(viewModel);
+            }
+
+            return BadRequest();
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Administrator,Manager")]
+        public async Task<IActionResult> Update(Guid id)
+        {
+            var project = await this.userQueryService
+                .QueryByIdAsync(id);
+
+            if (project is null || !project.IsActive)
+            {
+                return BadRequest();
+            }
+
+            var viewModel = new UpdateUserViewModel
+            {
+                Name = project.Name
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrator,Manager")]
+        public async Task<IActionResult> Update(UpdateUserViewModel viewModel)
+        {
+            var result = await this.userCommandService
+                .ExecuteAsync(viewModel);
+
+            if (result.Status is ResultStatus.Success)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (result.Status is ResultStatus.Invalid)
+            {
+                foreach (var (key, value) in result.Errors)
+                {
+                    ModelState.AddModelError(key, value);
+                }
+
+                return View(viewModel);
+            }
+
+            return BadRequest();
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var project = await this.userQueryService
+                .QueryByIdAsync(id);
+
+            if (project is null)
+            {
+                return BadRequest();
+            }
+
+            var viewModel = new DeleteUserViewModel
+            {
+                Id = project.Id,
+                Name = project.Name
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> Delete(DeleteUserViewModel viewModel)
+        {
+            var result = await this.userCommandService
+                .ExecuteAsync(viewModel);
+
+            if (result.Status is ResultStatus.Success)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (result.Status is ResultStatus.Invalid)
+            {
+                foreach (var (key, value) in result.Errors)
+                {
+                    ModelState.AddModelError(key, value);
+                }
+
+                return View(viewModel);
+            }
+
+            return BadRequest();
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Administrator,Manager")]
+        public async Task<IActionResult> Deactivate(Guid id)
+        {
+            var project = await this.userQueryService
+                .QueryByIdAsync(id);
+
+            if (project is null || !project.IsActive)
+            {
+                return BadRequest();
+            }
+
+            var viewModel = new DeactivateUserViewModel
+            {
+                Id = project.Id,
+                Name = project.Name
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrator,Manager")]
+        public async Task<IActionResult> Deactivate(DeactivateUserViewModel viewModel)
+        {
+            var result = await this.userCommandService
+                .ExecuteAsync(viewModel);
+
+            if (result.Status is ResultStatus.Success)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (result.Status is ResultStatus.Invalid)
+            {
+                foreach (var (key, value) in result.Errors)
+                {
+                    ModelState.AddModelError(key, value);
+                }
+
+                return View(viewModel);
+            }
+
+            return BadRequest();
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Administrator,Manager")]
+        public async Task<IActionResult> Activate(Guid id)
+        {
+            var project = await this.userQueryService
+                .QueryByIdAsync(id);
+
+            if (project is null || project.IsActive)
+            {
+                return BadRequest();
+            }
+
+            var viewModel = new ActivateUserViewModel
+            {
+                Id = project.Id,
+                Name = project.Name
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrator,Manager")]
+        public async Task<IActionResult> Activate(ActivateUserViewModel viewModel)
+        {
+            var result = await this.userCommandService
+                .ExecuteAsync(viewModel);
+
+            if (result.Status is ResultStatus.Success)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (result.Status is ResultStatus.Invalid)
+            {
+                foreach (var (key, value) in result.Errors)
+                {
+                    ModelState.AddModelError(key, value);
+                }
+
+                return View(viewModel);
+            }
+
+            return BadRequest();
+        }
+    }
+}

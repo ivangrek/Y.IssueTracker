@@ -1,0 +1,82 @@
+﻿@model Y.IssueTracker.Web.Models.Issue.ViewIssueViewModel
+
+@{
+    ViewData["Title"] = "View Issue";
+}
+
+<h1 class="mb-3">@Model.Issue.Name</h1>
+
+<a asp-area="" asp-controller="Issue" asp-action="Update" asp-route-id="@Model.Issue.Id" class="btn btn-outline-primary mb-3">Update</a>
+<a asp-area="" asp-controller="Comment" asp-action="Create" asp-route-id="@Model.Issue.Id" class="btn btn-outline-primary mb-3">Comment</a>
+
+<div class="row">
+    <div class="col-md-9">
+        <div class="card mb-3">
+            <div class="card-body">
+                <small class="d-block border-bottom pb-3 mb-3 text-muted">
+                    <a asp-area="" asp-controller="User" asp-action="View" asp-route-id="@Model.Issue.AuthorUserId" target="_blank">@Model.Issue.AuthorUserName</a> commented on @Model.Issue.CreatedOn.ToString(CultureInfo.InvariantCulture)
+                </small>
+
+                <pre class="mb-0">@Model.Issue.Description</pre>
+            </div>
+        </div>
+
+        @foreach (var comment in Model.Comments)
+        {
+            <div class="card mb-3">
+                <div class="card-body">
+                    <small class="d-block border-bottom pb-3 mb-3 text-muted">
+                        <a asp-area="" asp-controller="User" asp-action="View" asp-route-id="@comment.AuthorUserId" target="_blank">@comment.AuthorUserName</a> commented on @comment.CreatedOn.ToString(CultureInfo.InvariantCulture)
+                    </small>
+
+                    <pre class="mb-0">@comment.Text</pre>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="col-md-3">
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="mb-2 border-bottom">
+                    <h6 class="mb-0">Project</h6>
+                    <div class="mb-2">@Model.Issue.ProjectName</div>
+                </div>
+
+                <div class="mb-2 border-bottom">
+                    <h6 class="mb-0">Category</h6>
+                    <div class="mb-2">@Model.Issue.CategoryName</div>
+                </div>
+
+                <div>
+                    <h6 class="mb-0">Priority</h6>
+                    <div>@Model.Issue.PriorityName</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="mb-2 border-bottom">
+                    <h6 class="mb-0">Status</h6>
+                    <div class="mb-2">@Model.Issue.Status</div>
+                </div>
+
+                <div>
+                    <h6 class="mb-0">Assigned</h6>
+
+                    <div>
+                        @if (Model.Issue.AssignedUserId == Guid.Empty)
+                        {
+                            <span>-- None --</span>
+                        }
+                        else
+                        {
+                            <a asp-area="" asp-controller="User" asp-action="View" asp-route-id="@Model.Issue.AssignedUserId" target="_blank">@Model.Issue.AssignedUserName</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

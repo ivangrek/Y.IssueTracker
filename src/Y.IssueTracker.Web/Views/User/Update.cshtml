@@ -1,0 +1,39 @@
+﻿@using Y.IssueTracker.Users.Domain
+@model Y.IssueTracker.Web.Models.User.UpdateUserViewModel
+
+@{
+    ViewData["Title"] = "Update User";
+}
+
+<h1 class="mb-3">@ViewData["Title"]</h1>
+
+<div class="card">
+    <div class="card-body">
+        <form asp-controller="User" asp-action="Update" method="post">
+            <partial name="_ValidationSummary" />
+
+            <input asp-for="Id" type="hidden">
+
+            <div class="mb-3 row">
+                <label asp-for="Name" class="col-sm-2 col-form-label"></label>
+
+                <div class="col-sm-10">
+                    <input asp-for="Name" class="form-control">
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label asp-for="Role" class="col-sm-2 col-form-label"></label>
+
+                <div class="col-sm-10">
+                    <select asp-for="Role" asp-items="Html.GetEnumSelectList<Role>()" class="form-control"></select>
+                    <span asp-validation-for="Role" class="text-danger"></span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success">Update</button>
+            <a asp-area="" asp-controller="User" asp-action="Index" class="btn btn-link">Cancel</a>
+        </form>
+    </div>
+</div>

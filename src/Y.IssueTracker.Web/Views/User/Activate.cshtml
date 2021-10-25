@@ -1,0 +1,31 @@
+﻿@model Y.IssueTracker.Web.Models.User.ActivateUserViewModel
+
+@{
+    ViewData["Title"] = "Activate User";
+}
+
+<h1 class="mb-3">@ViewData["Title"]</h1>
+
+<div class="card">
+    <div class="card-body">
+        <p class="card-text">Are you sure you want to activate this?</p>
+
+        <form asp-controller="User" asp-action="Activate" method="post">
+            <partial name="_ValidationSummary" />
+
+            <input asp-for="Id" type="hidden">
+            <input asp-for="Name" type="hidden">
+
+            <div class="mb-3 row">
+                <label asp-for="Name" class="col-sm-2 col-form-label"></label>
+
+                <div class="col-sm-10">
+                    <div class="col-form-label">@Model.Name</div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success">Activate</button>
+            <a asp-area="" asp-controller="User" asp-action="Index" class="btn btn-link">Cancel</a>
+        </form>
+    </div>
+</div>

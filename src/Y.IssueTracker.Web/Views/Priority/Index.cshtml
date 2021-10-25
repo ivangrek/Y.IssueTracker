@@ -1,0 +1,65 @@
+﻿@using Y.IssueTracker.Web.Infrastructure
+@using Y.IssueTracker.Users.Domain
+@model Y.IssueTracker.Priorities.Results.IPriorityResult[]
+
+@{
+    ViewData["Title"] = "Priorities";
+}
+
+<h1 class="mb-3">@ViewData["Title"]</h1>
+
+<a asp-area="" asp-controller="Priority" asp-action="Create" class="btn btn-outline-primary mb-3">Create</a>
+
+<div class="card">
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Weight</th>
+                    <th>Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.Weight</td>
+
+                        <td>
+                            @if (item.IsActive)
+                            {
+                                <span>Y</span>
+                            }
+                            else
+                            {
+                                <span>N</span>
+                            }
+                        </td>
+
+                        <td>
+                            @if (item.IsActive)
+                            {
+                                <a asp-area="" asp-controller="Priority" asp-action="Update" asp-route-id="@item.Id">Update</a>
+                                <span>|</span>
+                                <a asp-area="" asp-controller="Priority" asp-action="Deactivate" asp-route-id="@item.Id">Deactivate</a>
+                            }
+                            else
+                            {
+                                <a asp-area="" asp-controller="Priority" asp-action="Activate" asp-route-id="@item.Id">Activate</a>
+                            }
+
+                            @if (User.GetUserRole() is Role.Administrator)
+                            {
+                                <span>|</span>
+                                <a asp-area="" asp-controller="Priority" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                            }
+                        </td>
+                    </tr>
+                }
+        </table>
+    </div>
+</div>

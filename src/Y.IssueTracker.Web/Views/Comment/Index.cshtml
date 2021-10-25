@@ -1,0 +1,34 @@
+﻿@model Y.IssueTracker.Projects.Results.IProjectResult[]
+
+@{
+    ViewData["Title"] = "Projects";
+}
+
+<h1 class="mb-3">@ViewData["Title"]</h1>
+
+<a asp-area="" asp-controller="Comment" asp-action="Create" class="btn btn-primary mb-3">Create</a>
+
+<div class="card">
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>
+                            <a asp-area="" asp-controller="Project" asp-action="Update" asp-route-id="@item.Id" class="btn btn-sm btn-success">Update</a>
+                            <a asp-area="" asp-controller="Project" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                }
+        </table>
+    </div>
+</div>

@@ -27,7 +27,8 @@
                     Id = x.Id,
                     Name = x.Name,
                     Role = x.Role,
-                    IsActive = x.IsActive
+                    IsActive = x.IsActive,
+                    IsDefault = x.IsDefault
                 })
                 .Cast<IUserResult>()
                 .ToArrayAsync();
@@ -44,7 +45,8 @@
                     Id = x.Id,
                     Name = x.Name,
                     Role = x.Role,
-                    IsActive = x.IsActive
+                    IsActive = x.IsActive,
+                    IsDefault = x.IsDefault
                 })
                 .Cast<IUserResult>()
                 .SingleOrDefaultAsync();

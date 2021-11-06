@@ -128,7 +128,7 @@
             var user = await this.userQueryService
                 .QueryByIdAsync(id);
 
-            if (user is null)
+            if (user is null || user.IsDefault)
             {
                 return BadRequest();
             }
@@ -175,7 +175,7 @@
             var user = await this.userQueryService
                 .QueryByIdAsync(id);
 
-            if (user is null || !user.IsActive)
+            if (user is null || !user.IsActive || user.IsDefault)
             {
                 return BadRequest();
             }
@@ -222,7 +222,7 @@
             var user = await this.userQueryService
                 .QueryByIdAsync(id);
 
-            if (user is null || user.IsActive)
+            if (user is null || user.IsActive || user.IsDefault)
             {
                 return BadRequest();
             }

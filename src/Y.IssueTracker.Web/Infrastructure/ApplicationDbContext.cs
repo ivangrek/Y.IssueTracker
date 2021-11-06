@@ -46,17 +46,20 @@
                 {
                     Name = "Administrator",
                     Role = Role.Administrator,
-                    IsActive = true
+                    IsActive = true,
+                    IsDefault = true
                 }, new User(Guid.Parse("B5D61694-B355-46DC-AFA1-2C385D2B3A7D"))
                 {
                     Name = "Manager",
                     Role = Role.Manager,
-                    IsActive = true
+                    IsActive = true,
+                    IsDefault = false
                 }, new User(Guid.Parse("C04AB03D-49F1-4E03-9806-7282F9F61C54"))
                 {
                     Name = "User",
                     Role = Role.User,
-                    IsActive = true
+                    IsActive = true,
+                    IsDefault = false
                 });
 
             modelBuilder.Entity<Project>()

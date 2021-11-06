@@ -18,6 +18,7 @@
                     <th>Name</th>
                     <th>Role</th>
                     <th>Active</th>
+                    <th>Default</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -41,22 +42,41 @@
                         </td>
 
                         <td>
-                            @if (item.IsActive)
+                            @if (item.IsDefault)
                             {
-                                <a asp-area="" asp-controller="User" asp-action="Update" asp-route-id="@item.Id">Update</a>
-                                <span>|</span>
-                                <a asp-area="" asp-controller="User" asp-action="Deactivate" asp-route-id="@item.Id">Deactivate</a>
+                                <span>Y</span>
                             }
                             else
                             {
-                                <a asp-area="" asp-controller="User" asp-action="Activate" asp-route-id="@item.Id">Activate</a>
+                                <span>N</span>
+                            }
+                        </td>
+
+                        <td>
+                            @if (item.IsDefault)
+                            {
+                                <a asp-area="" asp-controller="User" asp-action="Update" asp-route-id="@item.Id">Update</a>
+                            }
+                            else
+                            {
+                                @if (item.IsActive)
+                                {
+                                    <a asp-area="" asp-controller="User" asp-action="Update" asp-route-id="@item.Id">Update</a>
+                                    <span>|</span>
+                                    <a asp-area="" asp-controller="User" asp-action="Deactivate" asp-route-id="@item.Id">Deactivate</a>
+                                }
+                                else
+                                {
+                                    <a asp-area="" asp-controller="User" asp-action="Activate" asp-route-id="@item.Id">Activate</a>
+                                }
+
+                                @if (User.GetUserRole() is Role.Administrator)
+                                {
+                                    <span>|</span>
+                                    <a asp-area="" asp-controller="User" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                                }
                             }
 
-                            @if (User.GetUserRole() is Role.Administrator)
-                            {
-                                <span>|</span>
-                                <a asp-area="" asp-controller="User" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                            }
                         </td>
                     </tr>
                 }

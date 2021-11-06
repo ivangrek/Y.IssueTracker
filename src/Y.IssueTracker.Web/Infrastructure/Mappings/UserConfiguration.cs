@@ -21,6 +21,10 @@
             builder
                 .Property(x => x.IsActive)
                 .IsRequired();
+
+            builder
+                .Property(x => x.IsDefault)
+                .IsRequired();
         }
     }
 }

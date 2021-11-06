@@ -31,7 +31,8 @@
             {
                 Name = command.Name,
                 Role = command.Role,
-                IsActive = true
+                IsActive = true,
+                IsDefault = false
             };
 
             this.userRepository
@@ -90,6 +91,13 @@
                     .Build();
             }
 
+            if (user.IsDefault)
+            {
+                return Result.Failure()
+                    .WithError(string.Empty, "Invalid operation.")
+                    .Build();
+            }
+
             this.userRepository
                 .Remove(user);
 
@@ -111,7 +119,7 @@
                     .Build();
             }
 
-            if (!user.IsActive)
+            if (!user.IsActive || user.IsDefault)
             {
                 return Result.Failure()
                     .WithError(string.Empty, "Invalid operation.")
@@ -138,7 +146,7 @@
                     .Build();
             }
 
-            if (user.IsActive)
+            if (user.IsActive || user.IsDefault)
             {
                 return Result.Failure()
                     .WithError(string.Empty, "Invalid operation.")

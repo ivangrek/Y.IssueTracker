@@ -12,5 +12,7 @@
         Role Role { get; }
 
         bool IsActive { get; }
+
+        bool IsDefault { get; }
     }
 }

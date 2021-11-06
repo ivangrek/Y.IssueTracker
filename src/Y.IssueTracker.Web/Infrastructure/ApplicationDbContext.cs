@@ -44,7 +44,7 @@
             modelBuilder.Entity<User>()
                 .HasData(new User(Guid.Parse("635ECF0D-A569-4E94-9C14-29F5D3FCF220"))
                 {
-                    Name = "Administrator",
+                    Name = "Admin",
                     Role = Role.Administrator,
                     IsActive = true,
                     IsDefault = true

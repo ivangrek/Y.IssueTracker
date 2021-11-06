@@ -1,5 +1,7 @@
 ﻿namespace Y.IssueTracker.Web.Infrastructure
 {
+    using System;
+    using System.IO;
     using Categories;
     using Categories.Domain;
     using Comments;
@@ -21,7 +23,16 @@
     {
         public static void AddInfrastructure(this IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options => options.UseInMemoryDatabase(databaseName: "IssueTracker"));
+            var path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            var dbPath = Path.Combine(path, "database.db");
+
+            // for now
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+            }
+
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite($"Data Source={dbPath}"));
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 

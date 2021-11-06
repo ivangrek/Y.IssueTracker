@@ -34,20 +34,11 @@
         {
             User user = null;
 
-            switch (viewModel.Email)
+            if (viewModel.Email == viewModel.Password)
             {
-                case "user" when viewModel.Password == "user":
-                    user = await this.applicationDbContext
-                        .Users.SingleAsync(x => x.Id == Users.Domain.User.UserId);
-                    break;
-                case "manager" when viewModel.Password == "manager":
-                    user = await this.applicationDbContext
-                        .Users.SingleAsync(x => x.Id == Users.Domain.User.ManagerId);
-                    break;
-                case "admin" when viewModel.Password == "admin":
-                    user = await this.applicationDbContext
-                        .Users.SingleAsync(x => x.Id == Users.Domain.User.AdministratorId);
-                    break;
+                user = await this.applicationDbContext
+                    .Users
+                    .SingleOrDefaultAsync(x => x.Name == viewModel.Email);
             }
 
             if (user is null)

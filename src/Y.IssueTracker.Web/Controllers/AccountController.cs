@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Security.Claims;
     using System.Threading.Tasks;
     using Infrastructure;
@@ -32,14 +33,12 @@
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel viewModel)
         {
-            User user = null;
-
-            if (viewModel.Email == viewModel.Password)
-            {
-                user = await this.applicationDbContext
-                    .Users
-                    .SingleOrDefaultAsync(x => x.Name == viewModel.Email);
-            }
+            var user = await this.applicationDbContext
+                .Users
+                .Where(x => viewModel.Email == viewModel.Password)
+                .Where(x => x.Name == viewModel.Email)
+                .Where(x => x.IsActive)
+                .SingleOrDefaultAsync();
 
             if (user is null)
             {

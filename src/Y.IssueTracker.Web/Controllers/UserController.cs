@@ -79,17 +79,17 @@
         [Authorize(Roles = "Administrator,Manager")]
         public async Task<IActionResult> Update(Guid id)
         {
-            var project = await this.userQueryService
+            var user = await this.userQueryService
                 .QueryByIdAsync(id);
 
-            if (project is null || !project.IsActive)
+            if (user is null || !user.IsActive)
             {
                 return BadRequest();
             }
 
             var viewModel = new UpdateUserViewModel
             {
-                Name = project.Name
+                Name = user.Name
             };
 
             return View(viewModel);
@@ -125,18 +125,18 @@
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var project = await this.userQueryService
+            var user = await this.userQueryService
                 .QueryByIdAsync(id);
 
-            if (project is null)
+            if (user is null)
             {
                 return BadRequest();
             }
 
             var viewModel = new DeleteUserViewModel
             {
-                Id = project.Id,
-                Name = project.Name
+                Id = user.Id,
+                Name = user.Name
             };
 
             return View(viewModel);
@@ -172,18 +172,18 @@
         [Authorize(Roles = "Administrator,Manager")]
         public async Task<IActionResult> Deactivate(Guid id)
         {
-            var project = await this.userQueryService
+            var user = await this.userQueryService
                 .QueryByIdAsync(id);
 
-            if (project is null || !project.IsActive)
+            if (user is null || !user.IsActive)
             {
                 return BadRequest();
             }
 
             var viewModel = new DeactivateUserViewModel
             {
-                Id = project.Id,
-                Name = project.Name
+                Id = user.Id,
+                Name = user.Name
             };
 
             return View(viewModel);
@@ -219,18 +219,18 @@
         [Authorize(Roles = "Administrator,Manager")]
         public async Task<IActionResult> Activate(Guid id)
         {
-            var project = await this.userQueryService
+            var user = await this.userQueryService
                 .QueryByIdAsync(id);
 
-            if (project is null || project.IsActive)
+            if (user is null || user.IsActive)
             {
                 return BadRequest();
             }
 
             var viewModel = new ActivateUserViewModel
             {
-                Id = project.Id,
-                Name = project.Name
+                Id = user.Id,
+                Name = user.Name
             };
 
             return View(viewModel);

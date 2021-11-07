@@ -8,7 +8,10 @@
 
 <h1 class="mb-3">@ViewData["Title"]</h1>
 
-<a asp-area="" asp-controller="User" asp-action="Create" class="btn btn-outline-primary mb-3">Create</a>
+@if (User.GetUserRole() is Role.Administrator)
+{
+    <a asp-area="" asp-controller="User" asp-action="Create" class="btn btn-outline-primary mb-3">Create</a>
+}
 
 <div class="card">
     <div class="card-body">
@@ -53,30 +56,43 @@
                         </td>
 
                         <td>
-                            @if (item.IsDefault)
+                            @if (User.GetUserRole() is Role.Administrator)
                             {
-                                <a asp-area="" asp-controller="User" asp-action="Update" asp-route-id="@item.Id">Update</a>
-                            }
-                            else
-                            {
-                                @if (item.IsActive)
+                                if (item.IsActive)
                                 {
                                     <a asp-area="" asp-controller="User" asp-action="Update" asp-route-id="@item.Id">Update</a>
-                                    <span>|</span>
-                                    <a asp-area="" asp-controller="User" asp-action="Deactivate" asp-route-id="@item.Id">Deactivate</a>
-                                }
-                                else
-                                {
-                                    <a asp-area="" asp-controller="User" asp-action="Activate" asp-route-id="@item.Id">Activate</a>
                                 }
 
-                                @if (User.GetUserRole() is Role.Administrator)
+                                if (!item.IsDefault)
                                 {
+                                    if (item.IsActive)
+                                    {
+                                        <span>|</span>
+                                        <a asp-area="" asp-controller="User" asp-action="Deactivate" asp-route-id="@item.Id">Deactivate</a>
+                                    }
+                                    else
+                                    {
+                                        <a asp-area="" asp-controller="User" asp-action="Activate" asp-route-id="@item.Id">Activate</a>
+                                    }
+
                                     <span>|</span>
                                     <a asp-area="" asp-controller="User" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
                                 }
                             }
-
+                            else
+                            {
+                                if (!item.IsDefault)
+                                {
+                                    if (item.IsActive)
+                                    {
+                                        <a asp-area="" asp-controller="User" asp-action="Deactivate" asp-route-id="@item.Id">Deactivate</a>
+                                    }
+                                    else
+                                    {
+                                        <a asp-area="" asp-controller="User" asp-action="Activate" asp-route-id="@item.Id">Activate</a>
+                                    }
+                                }
+                            }
                         </td>
                     </tr>
                 }

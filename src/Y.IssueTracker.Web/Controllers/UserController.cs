@@ -41,7 +41,7 @@
         }
 
         [HttpGet]
-        [Authorize(Roles = "Administrator,Manager")]
+        [Authorize(Roles = "Administrator")]
         public IActionResult Create()
         {
             var viewModel = new CreateUserViewModel();
@@ -51,7 +51,7 @@
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Administrator,Manager")]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Create(CreateUserViewModel viewModel)
         {
             var result = await this.userCommandService
@@ -76,7 +76,7 @@
         }
 
         [HttpGet]
-        [Authorize(Roles = "Administrator,Manager")]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Update(Guid id)
         {
             var user = await this.userQueryService
@@ -89,7 +89,8 @@
 
             var viewModel = new UpdateUserViewModel
             {
-                Name = user.Name
+                Name = user.Name,
+                Role = user.Role
             };
 
             return View(viewModel);
@@ -97,7 +98,7 @@
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Administrator,Manager")]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Update(UpdateUserViewModel viewModel)
         {
             var result = await this.userCommandService

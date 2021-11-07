@@ -1,6 +1,7 @@
 ﻿namespace Y.IssueTracker.Users
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using Commands;
     using Domain;
@@ -27,6 +28,17 @@
                     .Build();
             }
 
+            var userExists = this.userRepository
+                .QueryAll()
+                .Any(x => x.Name == command.Name);
+
+            if (userExists)
+            {
+                return Result.Invalid()
+                    .WithError(nameof(command.Name), $"User with '{command.Name}' exists.")
+                    .Build();
+            }
+
             var user = new User(Guid.NewGuid())
             {
                 Name = command.Name,
@@ -50,6 +62,17 @@
             {
                 return Result.Invalid()
                     .WithError(nameof(command.Name), $"{nameof(command.Name)} is required.")
+                    .Build();
+            }
+
+            var userExists = this.userRepository
+                .QueryAll()
+                .Any(x => x.Name == command.Name);
+
+            if (userExists)
+            {
+                return Result.Invalid()
+                    .WithError(nameof(command.Name), $"User with '{command.Name}' exists.")
                     .Build();
             }
 

@@ -49,6 +49,8 @@
             services.AddScoped<IIssueQueryService, IssueQueryService>();
             services.AddScoped<ICommentQueryService, CommentQueryService>();
             services.AddScoped<IUserQueryService, UserQueryService>();
+
+            services.AddScoped<IAccountService, AccountService>();
         }
     }
 }

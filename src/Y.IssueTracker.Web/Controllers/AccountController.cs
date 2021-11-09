@@ -1,6 +1,5 @@
 ﻿namespace Y.IssueTracker.Web.Controllers
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Security.Claims;
@@ -66,8 +65,7 @@
 
             var properties = new AuthenticationProperties
             {
-                IsPersistent = rememberMe,
-                ExpiresUtc = DateTime.UtcNow.AddMinutes(60)
+                IsPersistent = rememberMe
             };
 
             return HttpContext

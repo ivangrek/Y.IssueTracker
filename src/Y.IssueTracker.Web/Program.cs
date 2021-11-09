@@ -3,7 +3,7 @@ namespace Y.IssueTracker.Web
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Hosting;
 
-    public class Program
+    internal sealed class Program
     {
         public static void Main(string[] args)
         {

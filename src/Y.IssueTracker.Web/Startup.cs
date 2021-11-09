@@ -1,5 +1,6 @@
 namespace Y.IssueTracker.Web
 {
+    using System;
     using Infrastructure;
     using Microsoft.AspNetCore.Authentication.Cookies;
     using Microsoft.AspNetCore.Builder;
@@ -9,7 +10,7 @@ namespace Y.IssueTracker.Web
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
 
-    public sealed class Startup
+    internal sealed class Startup
     {
         public Startup(IConfiguration configuration)
         {
@@ -26,9 +27,23 @@ namespace Y.IssueTracker.Web
 
             services.AddControllersWithViews();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(x => x.LoginPath = "/Account/Login");
+                .AddCookie(x =>
+                {
+                    x.LoginPath = "/Account/Login";
+                    x.AccessDeniedPath = "/Account/Login";
+                    x.ExpireTimeSpan = TimeSpan.FromHours(1);
+                });
 
-            services.AddRouting(x => x.LowercaseUrls = true);
+            services.AddSingleton<ITicketStore, SimpleTicketStore>();
+
+            services.AddOptions<CookieAuthenticationOptions>(CookieAuthenticationDefaults.AuthenticationScheme)
+                .Configure<ITicketStore>((x, y) => x.SessionStore = y);
+
+            services.AddRouting(x =>
+            {
+                x.LowercaseUrls = true;
+                x.LowercaseQueryStrings = true;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

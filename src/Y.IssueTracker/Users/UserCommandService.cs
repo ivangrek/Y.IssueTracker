@@ -10,13 +10,16 @@
     {
         private readonly IUnitOfWork unitOfWork;
         private readonly IUserRepository userRepository;
+        private readonly IAccountService accountService;
 
         public UserCommandService(
             IUnitOfWork unitOfWork,
-            IUserRepository userRepository)
+            IUserRepository userRepository,
+            IAccountService accountService)
         {
             this.unitOfWork = unitOfWork;
             this.userRepository = userRepository;
+            this.accountService = accountService;
         }
 
         public async Task<IResult> ExecuteAsync(ICreateCommand command)
@@ -124,8 +127,14 @@
             this.userRepository
                 .Remove(user);
 
-            await this.unitOfWork
+            var commitTask = this.unitOfWork
                 .CommitAsync();
+
+            var signOutTask = this.accountService
+                .SignOutAsync(user.Id);
+
+            await commitTask;
+            await signOutTask;
 
             return Result.Success();
         }
@@ -151,8 +160,14 @@
 
             user.IsActive = false;
 
-            await this.unitOfWork
+            var commitTask = this.unitOfWork
                 .CommitAsync();
+
+            var signOutTask = this.accountService
+                .SignOutAsync(user.Id);
+
+            await commitTask;
+            await signOutTask;
 
             return Result.Success();
         }

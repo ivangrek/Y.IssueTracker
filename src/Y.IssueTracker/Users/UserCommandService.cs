@@ -50,8 +50,8 @@
                 IsDefault = false
             };
 
-            this.userRepository
-                .Add(user);
+            await this.userRepository
+                .AddAsync(user);
 
             await this.unitOfWork
                 .CommitAsync();

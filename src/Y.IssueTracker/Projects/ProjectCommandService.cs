@@ -35,8 +35,8 @@ namespace Y.IssueTracker.Projects
                 IsActive = true
             };
 
-            this.projectRepository
-                .Add(project);
+            await this.projectRepository
+                .AddAsync(project);
 
             await this.unitOfWork
                 .CommitAsync();

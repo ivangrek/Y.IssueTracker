@@ -36,8 +36,8 @@ namespace Y.IssueTracker.Priorities
                 IsActive = true
             };
 
-            this.priorityRepository
-                .Add(priority);
+            await this.priorityRepository
+                .AddAsync(priority);
 
             await this.unitOfWork
                 .CommitAsync();

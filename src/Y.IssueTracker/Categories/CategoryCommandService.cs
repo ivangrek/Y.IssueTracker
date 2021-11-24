@@ -33,8 +33,8 @@
                 IsActive = true
             };
 
-            this.categoryRepository
-                .Add(category);
+            await this.categoryRepository
+                .AddAsync(category);
 
             await this.unitOfWork
                 .CommitAsync();

@@ -35,8 +35,8 @@
                 CreatedOn = DateTime.Now
             };
 
-            this.commentRepository
-                .Add(comment);
+            await this.commentRepository
+                .AddAsync(comment);
 
             await this.unitOfWork
                 .CommitAsync();

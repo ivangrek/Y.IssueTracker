@@ -15,10 +15,10 @@
             this.ApplicationDbContext = applicationDbContext;
         }
 
-        public void Add(TEntity entity)
+        public async Task AddAsync(TEntity entity)
         {
-            this.ApplicationDbContext
-                .Add(entity);
+            _ = await this.ApplicationDbContext
+                .AddAsync(entity);
         }
 
         public void Remove(TEntity entity)

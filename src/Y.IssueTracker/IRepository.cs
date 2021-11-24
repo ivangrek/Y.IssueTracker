@@ -7,7 +7,7 @@
     public interface IRepository<TEntity>
         where TEntity : class, IEntity
     {
-        void Add(TEntity entity);
+        Task AddAsync(TEntity entity);
 
         void Remove(TEntity entity);
 

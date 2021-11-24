@@ -69,8 +69,8 @@
                 CreatedOn = DateTime.Now
             };
 
-            this.issueRepository
-                .Add(issue);
+            await this.issueRepository
+                .AddAsync(issue);
 
             await this.unitOfWork
                 .CommitAsync();

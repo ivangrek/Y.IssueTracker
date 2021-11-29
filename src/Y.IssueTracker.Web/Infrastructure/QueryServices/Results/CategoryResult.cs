@@ -1,14 +1,13 @@
-﻿namespace Y.IssueTracker.Web.Infrastructure.QueryServices.Results
+﻿namespace Y.IssueTracker.Web.Infrastructure.QueryServices.Results;
+
+using System;
+using Categories.Results;
+
+internal sealed class CategoryResult : ICategoryResult
 {
-    using System;
-    using Categories.Results;
+    public Guid Id { get; init; }
 
-    internal sealed class CategoryResult : ICategoryResult
-    {
-        public Guid Id { get; init; }
+    public string Name { get; init; }
 
-        public string Name { get; init; }
-
-        public bool IsActive { get; init; }
-    }
+    public bool IsActive { get; init; }
 }

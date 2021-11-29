@@ -1,18 +1,17 @@
-﻿namespace Y.IssueTracker
+﻿namespace Y.IssueTracker;
+
+using System.Collections.Generic;
+
+public enum ResultStatus
 {
-    using System.Collections.Generic;
+    Success,
+    Invalid,
+    Failure
+}
 
-    public enum ResultStatus
-    {
-        Success,
-        Invalid,
-        Failure
-    }
+public interface IResult
+{
+    ResultStatus Status { get; }
 
-    public interface IResult
-    {
-        ResultStatus Status { get; }
-
-        KeyValuePair<string, string>[] Errors { get; }
-    }
+    KeyValuePair<string, string>[] Errors { get; }
 }

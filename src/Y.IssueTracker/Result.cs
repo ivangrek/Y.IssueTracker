@@ -1,99 +1,98 @@
-﻿namespace Y.IssueTracker
+﻿namespace Y.IssueTracker;
+
+using System;
+using System.Collections.Generic;
+
+internal interface IResultWithErrorBuilder
 {
-    using System;
-    using System.Collections.Generic;
+    IResultWithErrorBuilder WithError(string value);
 
-    internal interface IResultWithErrorBuilder
+    IResultWithErrorBuilder WithError(string key, string value);
+
+    IResultWithErrorBuilder WithErrors(IEnumerable<KeyValuePair<string, string>> errors);
+
+    IResult Build();
+}
+
+internal sealed class Result : IResult
+{
+    public static IResult Success()
     {
-        IResultWithErrorBuilder WithError(string value);
-
-        IResultWithErrorBuilder WithError(string key, string value);
-
-        IResultWithErrorBuilder WithErrors(IEnumerable<KeyValuePair<string, string>> errors);
-
-        IResult Build();
+        return new Result
+        {
+            Status = ResultStatus.Success
+        };
     }
 
-    internal sealed class Result : IResult
+    public static IResultWithErrorBuilder Invalid()
     {
-        public static IResult Success()
+        var result = new Result
         {
-            return new Result
-            {
-                Status = ResultStatus.Success
-            };
+            Status = ResultStatus.Invalid
+        };
+
+        return new ResultWithErrorBuilder(result);
+    }
+
+    public static IResultWithErrorBuilder Failure()
+    {
+        var result = new Result
+        {
+            Status = ResultStatus.Failure
+        };
+
+        return new ResultWithErrorBuilder(result);
+    }
+
+    private Result()
+    {
+        Errors = Array.Empty<KeyValuePair<string, string>>();
+    }
+
+    public ResultStatus Status { get; init; }
+
+    public KeyValuePair<string, string>[] Errors { get; private set; }
+
+    private sealed class ResultWithErrorBuilder : IResultWithErrorBuilder
+    {
+        private readonly Result result;
+        private readonly List<KeyValuePair<string, string>> errors;
+
+        public ResultWithErrorBuilder(Result result)
+        {
+            this.result = result;
+            this.errors = new List<KeyValuePair<string, string>>();
         }
 
-        public static IResultWithErrorBuilder Invalid()
+        public IResultWithErrorBuilder WithError(string value)
         {
-            var result = new Result
-            {
-                Status = ResultStatus.Invalid
-            };
+            this.errors
+                .Add(new KeyValuePair<string, string>(string.Empty, value));
 
-            return new ResultWithErrorBuilder(result);
+            return this;
         }
 
-        public static IResultWithErrorBuilder Failure()
+        public IResultWithErrorBuilder WithError(string key, string value)
         {
-            var result = new Result
-            {
-                Status = ResultStatus.Failure
-            };
+            this.errors
+                .Add(new KeyValuePair<string, string>(key, value));
 
-            return new ResultWithErrorBuilder(result);
+            return this;
         }
 
-        private Result()
+        public IResultWithErrorBuilder WithErrors(IEnumerable<KeyValuePair<string, string>> errors)
         {
-            Errors = Array.Empty<KeyValuePair<string, string>>();
+            this.errors
+                .AddRange(errors);
+
+            return this;
         }
 
-        public ResultStatus Status { get; init; }
-
-        public KeyValuePair<string, string>[] Errors { get; private set; }
-
-        private sealed class ResultWithErrorBuilder : IResultWithErrorBuilder
+        public IResult Build()
         {
-            private readonly Result result;
-            private readonly List<KeyValuePair<string, string>> errors;
+            this.result.Errors = this.errors.ToArray();
 
-            public ResultWithErrorBuilder(Result result)
-            {
-                this.result = result;
-                this.errors = new List<KeyValuePair<string, string>>();
-            }
-
-            public IResultWithErrorBuilder WithError(string value)
-            {
-                this.errors
-                    .Add(new KeyValuePair<string, string>(string.Empty, value));
-
-                return this;
-            }
-
-            public IResultWithErrorBuilder WithError(string key, string value)
-            {
-                this.errors
-                    .Add(new KeyValuePair<string, string>(key, value));
-
-                return this;
-            }
-
-            public IResultWithErrorBuilder WithErrors(IEnumerable<KeyValuePair<string, string>> errors)
-            {
-                this.errors
-                    .AddRange(errors);
-
-                return this;
-            }
-
-            public IResult Build()
-            {
-                this.result.Errors = this.errors.ToArray();
-
-                return this.result;
-            }
+            return this.result;
         }
     }
 }

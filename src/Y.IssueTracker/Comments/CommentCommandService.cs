@@ -1,47 +1,46 @@
-﻿namespace Y.IssueTracker.Comments
+﻿namespace Y.IssueTracker.Comments;
+
+using System;
+using System.Threading.Tasks;
+using Commands;
+using Domain;
+
+internal sealed class CommentCommandService : ICommentCommandService
 {
-    using System;
-    using System.Threading.Tasks;
-    using Commands;
-    using Domain;
+    private readonly IUnitOfWork unitOfWork;
+    private readonly ICommentRepository commentRepository;
 
-    internal sealed class CommentCommandService : ICommentCommandService
+    public CommentCommandService(
+        IUnitOfWork unitOfWork,
+        ICommentRepository commentRepository)
     {
-        private readonly IUnitOfWork unitOfWork;
-        private readonly ICommentRepository commentRepository;
+        this.unitOfWork = unitOfWork;
+        this.commentRepository = commentRepository;
+    }
 
-        public CommentCommandService(
-            IUnitOfWork unitOfWork,
-            ICommentRepository commentRepository)
+    public async Task<IResult> ExecuteAsync(ICreateCommand command)
+    {
+        if (string.IsNullOrWhiteSpace(command.Text))
         {
-            this.unitOfWork = unitOfWork;
-            this.commentRepository = commentRepository;
+            return Result.Invalid()
+                .WithError(nameof(command.Text), $"{nameof(command.Text)} is required.")
+                .Build();
         }
 
-        public async Task<IResult> ExecuteAsync(ICreateCommand command)
+        var comment = new Comment(Guid.NewGuid())
         {
-            if (string.IsNullOrWhiteSpace(command.Text))
-            {
-                return Result.Invalid()
-                    .WithError(nameof(command.Text), $"{nameof(command.Text)} is required.")
-                    .Build();
-            }
+            IssueId = command.IssueId,
+            Text = command.Text,
+            AuthorUserId = command.AuthorUserId,
+            CreatedOn = DateTime.Now
+        };
 
-            var comment = new Comment(Guid.NewGuid())
-            {
-                IssueId = command.IssueId,
-                Text = command.Text,
-                AuthorUserId = command.AuthorUserId,
-                CreatedOn = DateTime.Now
-            };
+        await this.commentRepository
+            .AddAsync(comment);
 
-            await this.commentRepository
-                .AddAsync(comment);
+        await this.unitOfWork
+            .CommitAsync();
 
-            await this.unitOfWork
-                .CommitAsync();
-
-            return Result.Success();
-        }
+        return Result.Success();
     }
 }

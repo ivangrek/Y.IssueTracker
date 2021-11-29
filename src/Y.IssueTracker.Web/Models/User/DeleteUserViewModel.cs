@@ -1,12 +1,11 @@
-﻿namespace Y.IssueTracker.Web.Models.User
+﻿namespace Y.IssueTracker.Web.Models.User;
+
+using System;
+using Users.Commands;
+
+public sealed class DeleteUserViewModel : IDeleteCommand
 {
-    using System;
-    using Users.Commands;
+    public Guid Id { get; set; }
 
-    public sealed class DeleteUserViewModel : IDeleteCommand
-    {
-        public Guid Id { get; set; }
-
-        public string Name { get; set; }
-    }
+    public string Name { get; set; }
 }

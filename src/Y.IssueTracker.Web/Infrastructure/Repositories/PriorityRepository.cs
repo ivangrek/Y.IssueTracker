@@ -1,12 +1,11 @@
-﻿namespace Y.IssueTracker.Web.Infrastructure.Repositories
-{
-    using Priorities.Domain;
+﻿namespace Y.IssueTracker.Web.Infrastructure.Repositories;
 
-    internal sealed class PriorityRepository : Repository<Priority>, IPriorityRepository
+using Priorities.Domain;
+
+internal sealed class PriorityRepository : Repository<Priority>, IPriorityRepository
+{
+    public PriorityRepository(ApplicationDbContext applicationDbContext)
+        : base(applicationDbContext)
     {
-        public PriorityRepository(ApplicationDbContext applicationDbContext)
-            : base(applicationDbContext)
-        {
-        }
     }
 }

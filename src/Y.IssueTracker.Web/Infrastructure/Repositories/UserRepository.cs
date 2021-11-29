@@ -1,12 +1,11 @@
-﻿namespace Y.IssueTracker.Web.Infrastructure.Repositories
-{
-    using Users.Domain;
+﻿namespace Y.IssueTracker.Web.Infrastructure.Repositories;
 
-    internal sealed class UserRepository : Repository<User>, IUserRepository
+using Users.Domain;
+
+internal sealed class UserRepository : Repository<User>, IUserRepository
+{
+    public UserRepository(ApplicationDbContext applicationDbContext)
+        : base(applicationDbContext)
     {
-        public UserRepository(ApplicationDbContext applicationDbContext)
-            : base(applicationDbContext)
-        {
-        }
     }
 }

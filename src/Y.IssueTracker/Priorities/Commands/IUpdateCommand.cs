@@ -1,13 +1,12 @@
-﻿namespace Y.IssueTracker.Priorities.Commands
+﻿namespace Y.IssueTracker.Priorities.Commands;
+
+using System;
+
+public interface IUpdateCommand
 {
-    using System;
+    Guid Id { get; }
 
-    public interface IUpdateCommand
-    {
-        Guid Id { get; }
+    string Name { get; }
 
-        string Name { get; }
-
-        int Weight { get; }
-    }
+    int Weight { get; }
 }

@@ -1,14 +1,13 @@
-﻿namespace Y.IssueTracker.Issues
+﻿namespace Y.IssueTracker.Issues;
+
+using System.Threading.Tasks;
+using Commands;
+
+public interface IIssueCommandService
 {
-    using System.Threading.Tasks;
-    using Commands;
+    Task<IResult> ExecuteAsync(ICreateCommand command);
 
-    public interface IIssueCommandService
-    {
-        Task<IResult> ExecuteAsync(ICreateCommand command);
+    Task<IResult> ExecuteAsync(IUpdateCommand command);
 
-        Task<IResult> ExecuteAsync(IUpdateCommand command);
-
-        Task<IResult> ExecuteAsync(IDeleteCommand command);
-    }
+    Task<IResult> ExecuteAsync(IDeleteCommand command);
 }

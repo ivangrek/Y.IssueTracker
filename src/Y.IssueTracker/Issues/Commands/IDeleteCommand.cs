@@ -1,9 +1,8 @@
-﻿namespace Y.IssueTracker.Issues.Commands
-{
-    using System;
+﻿namespace Y.IssueTracker.Issues.Commands;
 
-    public interface IDeleteCommand
-    {
-        Guid Id { get; }
-    }
+using System;
+
+public interface IDeleteCommand
+{
+    Guid Id { get; }
 }

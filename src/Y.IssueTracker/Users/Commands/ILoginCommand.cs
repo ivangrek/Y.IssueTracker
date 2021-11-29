@@ -1,11 +1,10 @@
-﻿namespace Y.IssueTracker.Users.Commands
+﻿namespace Y.IssueTracker.Users.Commands;
+
+public interface ILoginCommand
 {
-    public interface ILoginCommand
-    {
-        string Email { get; }
+    string Email { get; }
 
-        string Password { get; }
+    string Password { get; }
 
-        bool RememberMe { get; }
-    }
+    bool RememberMe { get; }
 }

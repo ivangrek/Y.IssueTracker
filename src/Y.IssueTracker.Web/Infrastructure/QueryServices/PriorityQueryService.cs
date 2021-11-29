@@ -1,53 +1,52 @@
-﻿namespace Y.IssueTracker.Web.Infrastructure.QueryServices
+﻿namespace Y.IssueTracker.Web.Infrastructure.QueryServices;
+
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Priorities;
+using Priorities.Results;
+using Results;
+
+internal sealed class PriorityQueryService : IPriorityQueryService
 {
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Microsoft.EntityFrameworkCore;
-    using Priorities;
-    using Priorities.Results;
-    using Results;
+    private readonly ApplicationDbContext applicationDbContext;
 
-    internal sealed class PriorityQueryService : IPriorityQueryService
+    public PriorityQueryService(ApplicationDbContext applicationDbContext)
     {
-        private readonly ApplicationDbContext applicationDbContext;
+        this.applicationDbContext = applicationDbContext;
+    }
 
-        public PriorityQueryService(ApplicationDbContext applicationDbContext)
-        {
-            this.applicationDbContext = applicationDbContext;
-        }
+    public Task<IPriorityResult[]> QueryAllAsync()
+    {
+        return this.applicationDbContext
+            .Priorities
+            .AsNoTracking()
+            .Select(x => new PriorityResult
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Weight = x.Weight,
+                IsActive = x.IsActive
+            })
+            .Cast<IPriorityResult>()
+            .ToArrayAsync();
+    }
 
-        public Task<IPriorityResult[]> QueryAllAsync()
-        {
-            return this.applicationDbContext
-                .Priorities
-                .AsNoTracking()
-                .Select(x => new PriorityResult
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Weight = x.Weight,
-                    IsActive = x.IsActive
-                })
-                .Cast<IPriorityResult>()
-                .ToArrayAsync();
-        }
-
-        public Task<IPriorityResult> QueryByIdAsync(Guid id)
-        {
-            return this.applicationDbContext
-                .Priorities
-                .AsNoTracking()
-                .Where(x => x.Id == id)
-                .Select(x => new PriorityResult
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Weight = x.Weight,
-                    IsActive = x.IsActive
-                })
-                .Cast<IPriorityResult>()
-                .SingleOrDefaultAsync();
-        }
+    public Task<IPriorityResult> QueryByIdAsync(Guid id)
+    {
+        return this.applicationDbContext
+            .Priorities
+            .AsNoTracking()
+            .Where(x => x.Id == id)
+            .Select(x => new PriorityResult
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Weight = x.Weight,
+                IsActive = x.IsActive
+            })
+            .Cast<IPriorityResult>()
+            .SingleOrDefaultAsync();
     }
 }

@@ -1,18 +1,17 @@
-﻿namespace Y.IssueTracker.Users.Results
+﻿namespace Y.IssueTracker.Users.Results;
+
+using System;
+using Domain;
+
+public interface IUserResult
 {
-    using System;
-    using Domain;
+    Guid Id { get; }
 
-    public interface IUserResult
-    {
-        Guid Id { get; }
+    string Name { get; }
 
-        string Name { get; }
+    Role Role { get; }
 
-        Role Role { get; }
+    bool IsActive { get; }
 
-        bool IsActive { get; }
-
-        bool IsDefault { get; }
-    }
+    bool IsDefault { get; }
 }

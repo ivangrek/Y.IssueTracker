@@ -1,154 +1,153 @@
-﻿namespace Y.IssueTracker.Categories
+﻿namespace Y.IssueTracker.Categories;
+
+using System;
+using System.Threading.Tasks;
+using Commands;
+using Domain;
+
+internal sealed class CategoryCommandService : ICategoryCommandService
 {
-    using System;
-    using System.Threading.Tasks;
-    using Commands;
-    using Domain;
+    private readonly IUnitOfWork unitOfWork;
+    private readonly ICategoryRepository categoryRepository;
 
-    internal sealed class CategoryCommandService : ICategoryCommandService
+    public CategoryCommandService(
+        IUnitOfWork unitOfWork,
+        ICategoryRepository categoryRepository)
     {
-        private readonly IUnitOfWork unitOfWork;
-        private readonly ICategoryRepository categoryRepository;
+        this.unitOfWork = unitOfWork;
+        this.categoryRepository = categoryRepository;
+    }
 
-        public CategoryCommandService(
-            IUnitOfWork unitOfWork,
-            ICategoryRepository categoryRepository)
+    public async Task<IResult> ExecuteAsync(ICreateCommand command)
+    {
+        if (string.IsNullOrWhiteSpace(command.Name))
         {
-            this.unitOfWork = unitOfWork;
-            this.categoryRepository = categoryRepository;
+            return Result.Invalid()
+                .WithError(nameof(command.Name), "Name is required.")
+                .Build();
         }
 
-        public async Task<IResult> ExecuteAsync(ICreateCommand command)
+        var category = new Category(Guid.NewGuid())
         {
-            if (string.IsNullOrWhiteSpace(command.Name))
-            {
-                return Result.Invalid()
-                    .WithError(nameof(command.Name), "Name is required.")
-                    .Build();
-            }
+            Name = command.Name,
+            IsActive = true
+        };
 
-            var category = new Category(Guid.NewGuid())
-            {
-                Name = command.Name,
-                IsActive = true
-            };
+        await this.categoryRepository
+            .AddAsync(category);
 
-            await this.categoryRepository
-                .AddAsync(category);
+        await this.unitOfWork
+            .CommitAsync();
 
-            await this.unitOfWork
-                .CommitAsync();
+        return Result.Success();
+    }
 
-            return Result.Success();
+    public async Task<IResult> ExecuteAsync(IUpdateCommand command)
+    {
+        if (string.IsNullOrWhiteSpace(command.Name))
+        {
+            return Result.Invalid()
+                .WithError(nameof(command.Name), "Name is required.")
+                .Build();
         }
 
-        public async Task<IResult> ExecuteAsync(IUpdateCommand command)
+        var category = await this.categoryRepository
+            .QueryByIdAsync(command.Id);
+
+        if (category is null)
         {
-            if (string.IsNullOrWhiteSpace(command.Name))
-            {
-                return Result.Invalid()
-                    .WithError(nameof(command.Name), "Name is required.")
-                    .Build();
-            }
-
-            var category = await this.categoryRepository
-                .QueryByIdAsync(command.Id);
-
-            if (category is null)
-            {
-                return Result.Failure()
-                    .WithError("Not exist.")
-                    .Build();
-            }
-
-            if (!category.IsActive)
-            {
-                return Result.Failure()
-                    .WithError("Invalid operation.")
-                    .Build();
-            }
-
-            category.Name = command.Name;
-
-            await this.unitOfWork
-                .CommitAsync();
-
-            return Result.Success();
+            return Result.Failure()
+                .WithError("Not exist.")
+                .Build();
         }
 
-        public async Task<IResult> ExecuteAsync(IDeleteCommand command)
+        if (!category.IsActive)
         {
-            var category = await this.categoryRepository
-                .QueryByIdAsync(command.Id);
-
-            if (category is null)
-            {
-                return Result.Failure()
-                    .WithError("Not exist.")
-                    .Build();
-            }
-
-            this.categoryRepository
-                .Remove(category);
-
-            await this.unitOfWork
-                .CommitAsync();
-
-            return Result.Success();
+            return Result.Failure()
+                .WithError("Invalid operation.")
+                .Build();
         }
 
-        public async Task<IResult> ExecuteAsync(IDeactivateCommand command)
+        category.Name = command.Name;
+
+        await this.unitOfWork
+            .CommitAsync();
+
+        return Result.Success();
+    }
+
+    public async Task<IResult> ExecuteAsync(IDeleteCommand command)
+    {
+        var category = await this.categoryRepository
+            .QueryByIdAsync(command.Id);
+
+        if (category is null)
         {
-            var category = await this.categoryRepository
-                .QueryByIdAsync(command.Id);
-
-            if (category is null)
-            {
-                return Result.Failure()
-                    .WithError("Not exist.")
-                    .Build();
-            }
-
-            if (!category.IsActive)
-            {
-                return Result.Failure()
-                    .WithError("Invalid operation.")
-                    .Build();
-            }
-
-            category.IsActive = false;
-
-            await this.unitOfWork
-                .CommitAsync();
-
-            return Result.Success();
+            return Result.Failure()
+                .WithError("Not exist.")
+                .Build();
         }
 
-        public async Task<IResult> ExecuteAsync(IActivateCommand command)
+        this.categoryRepository
+            .Remove(category);
+
+        await this.unitOfWork
+            .CommitAsync();
+
+        return Result.Success();
+    }
+
+    public async Task<IResult> ExecuteAsync(IDeactivateCommand command)
+    {
+        var category = await this.categoryRepository
+            .QueryByIdAsync(command.Id);
+
+        if (category is null)
         {
-            var category = await this.categoryRepository
-                .QueryByIdAsync(command.Id);
-
-            if (category is null)
-            {
-                return Result.Failure()
-                    .WithError("Not exist.")
-                    .Build();
-            }
-
-            if (category.IsActive)
-            {
-                return Result.Failure()
-                    .WithError("Invalid operation.")
-                    .Build();
-            }
-
-            category.IsActive = true;
-
-            await this.unitOfWork
-                .CommitAsync();
-
-            return Result.Success();
+            return Result.Failure()
+                .WithError("Not exist.")
+                .Build();
         }
+
+        if (!category.IsActive)
+        {
+            return Result.Failure()
+                .WithError("Invalid operation.")
+                .Build();
+        }
+
+        category.IsActive = false;
+
+        await this.unitOfWork
+            .CommitAsync();
+
+        return Result.Success();
+    }
+
+    public async Task<IResult> ExecuteAsync(IActivateCommand command)
+    {
+        var category = await this.categoryRepository
+            .QueryByIdAsync(command.Id);
+
+        if (category is null)
+        {
+            return Result.Failure()
+                .WithError("Not exist.")
+                .Build();
+        }
+
+        if (category.IsActive)
+        {
+            return Result.Failure()
+                .WithError("Invalid operation.")
+                .Build();
+        }
+
+        category.IsActive = true;
+
+        await this.unitOfWork
+            .CommitAsync();
+
+        return Result.Success();
     }
 }

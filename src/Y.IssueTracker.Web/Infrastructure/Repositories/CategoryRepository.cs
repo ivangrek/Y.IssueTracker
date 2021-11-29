@@ -1,12 +1,11 @@
-﻿namespace Y.IssueTracker.Web.Infrastructure.Repositories
-{
-    using Categories.Domain;
+﻿namespace Y.IssueTracker.Web.Infrastructure.Repositories;
 
-    internal sealed class CategoryRepository : Repository<Category>, ICategoryRepository
+using Categories.Domain;
+
+internal sealed class CategoryRepository : Repository<Category>, ICategoryRepository
+{
+    public CategoryRepository(ApplicationDbContext applicationDbContext)
+        : base(applicationDbContext)
     {
-        public CategoryRepository(ApplicationDbContext applicationDbContext)
-            : base(applicationDbContext)
-        {
-        }
     }
 }

@@ -1,20 +1,19 @@
-﻿namespace Y.IssueTracker.Web.Infrastructure
+﻿namespace Y.IssueTracker.Web.Infrastructure;
+
+using System.Threading.Tasks;
+
+internal sealed class UnitOfWork : IUnitOfWork
 {
-    using System.Threading.Tasks;
+    private readonly ApplicationDbContext applicationDbContext;
 
-    internal sealed class UnitOfWork : IUnitOfWork
+    public UnitOfWork(ApplicationDbContext applicationDbContext)
     {
-        private readonly ApplicationDbContext applicationDbContext;
+        this.applicationDbContext = applicationDbContext;
+    }
 
-        public UnitOfWork(ApplicationDbContext applicationDbContext)
-        {
-            this.applicationDbContext = applicationDbContext;
-        }
-
-        public Task CommitAsync()
-        {
-            return this.applicationDbContext
-                .SaveChangesAsync();
-        }
+    public Task CommitAsync()
+    {
+        return this.applicationDbContext
+            .SaveChangesAsync();
     }
 }

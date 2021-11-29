@@ -1,9 +1,8 @@
-﻿namespace Y.IssueTracker.Web.Models.Category
-{
-    using Categories.Commands;
+﻿namespace Y.IssueTracker.Web.Models.Category;
 
-    public sealed class CreateCategoryViewModel : ICreateCommand
-    {
-        public string Name { get; set; }
-    }
+using Categories.Commands;
+
+public sealed class CreateCategoryViewModel : ICreateCommand
+{
+    public string Name { get; set; }
 }

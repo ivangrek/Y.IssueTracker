@@ -1,6 +1,5 @@
-﻿namespace Y.IssueTracker.Categories.Domain
+﻿namespace Y.IssueTracker.Categories.Domain;
+
+public interface ICategoryRepository : IRepository<Category>
 {
-    public interface ICategoryRepository : IRepository<Category>
-    {
-    }
 }

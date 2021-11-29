@@ -1,13 +1,12 @@
-﻿namespace Y.IssueTracker.Categories.Results
+﻿namespace Y.IssueTracker.Categories.Results;
+
+using System;
+
+public interface ICategoryResult
 {
-    using System;
+    Guid Id { get; }
 
-    public interface ICategoryResult
-    {
-        Guid Id { get; }
+    string Name { get; }
 
-        string Name { get; }
-
-        bool IsActive { get; }
-    }
+    bool IsActive { get; }
 }

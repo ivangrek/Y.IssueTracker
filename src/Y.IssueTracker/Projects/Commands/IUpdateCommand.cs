@@ -1,11 +1,10 @@
-﻿namespace Y.IssueTracker.Projects.Commands
+﻿namespace Y.IssueTracker.Projects.Commands;
+
+using System;
+
+public interface IUpdateCommand
 {
-    using System;
+    Guid Id { get; }
 
-    public interface IUpdateCommand
-    {
-        Guid Id { get; }
-
-        string Name { get; }
-    }
+    string Name { get; }
 }

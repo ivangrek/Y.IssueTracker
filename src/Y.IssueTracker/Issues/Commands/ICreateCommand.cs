@@ -1,21 +1,20 @@
-﻿namespace Y.IssueTracker.Issues.Commands
+﻿namespace Y.IssueTracker.Issues.Commands;
+
+using System;
+
+public interface ICreateCommand
 {
-    using System;
+    string Name { get; }
 
-    public interface ICreateCommand
-    {
-        string Name { get; }
+    string Description { get; }
 
-        string Description { get; }
+    Guid ProjectId { get; }
 
-        Guid ProjectId { get; }
+    Guid CategoryId { get; }
 
-        Guid CategoryId { get; }
+    Guid PriorityId { get; }
 
-        Guid PriorityId { get; }
+    Guid AssignedUserId { get; }
 
-        Guid AssignedUserId { get; }
-
-        Guid AuthorUserId { get; }
-    }
+    Guid AuthorUserId { get; }
 }

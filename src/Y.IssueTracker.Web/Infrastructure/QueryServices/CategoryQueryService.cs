@@ -1,51 +1,50 @@
-﻿namespace Y.IssueTracker.Web.Infrastructure.QueryServices
+﻿namespace Y.IssueTracker.Web.Infrastructure.QueryServices;
+
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Categories;
+using Categories.Results;
+using Microsoft.EntityFrameworkCore;
+using Results;
+
+internal sealed class CategoryQueryService : ICategoryQueryService
 {
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Categories;
-    using Categories.Results;
-    using Microsoft.EntityFrameworkCore;
-    using Results;
+    private readonly ApplicationDbContext applicationDbContext;
 
-    internal sealed class CategoryQueryService : ICategoryQueryService
+    public CategoryQueryService(ApplicationDbContext applicationDbContext)
     {
-        private readonly ApplicationDbContext applicationDbContext;
+        this.applicationDbContext = applicationDbContext;
+    }
 
-        public CategoryQueryService(ApplicationDbContext applicationDbContext)
-        {
-            this.applicationDbContext = applicationDbContext;
-        }
+    public Task<ICategoryResult[]> QueryAllAsync()
+    {
+        return this.applicationDbContext
+            .Categories
+            .AsNoTracking()
+            .Select(x => new CategoryResult
+            {
+                Id = x.Id,
+                Name = x.Name,
+                IsActive = x.IsActive
+            })
+            .Cast<ICategoryResult>()
+            .ToArrayAsync();
+    }
 
-        public Task<ICategoryResult[]> QueryAllAsync()
-        {
-            return this.applicationDbContext
-                .Categories
-                .AsNoTracking()
-                .Select(x => new CategoryResult
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    IsActive = x.IsActive
-                })
-                .Cast<ICategoryResult>()
-                .ToArrayAsync();
-        }
-
-        public Task<ICategoryResult> QueryByIdAsync(Guid id)
-        {
-            return this.applicationDbContext
-                .Categories
-                .AsNoTracking()
-                .Where(x => x.Id == id)
-                .Select(x => new CategoryResult
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    IsActive = x.IsActive
-                })
-                .Cast<ICategoryResult>()
-                .SingleOrDefaultAsync();
-        }
+    public Task<ICategoryResult> QueryByIdAsync(Guid id)
+    {
+        return this.applicationDbContext
+            .Categories
+            .AsNoTracking()
+            .Where(x => x.Id == id)
+            .Select(x => new CategoryResult
+            {
+                Id = x.Id,
+                Name = x.Name,
+                IsActive = x.IsActive
+            })
+            .Cast<ICategoryResult>()
+            .SingleOrDefaultAsync();
     }
 }

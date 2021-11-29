@@ -1,6 +1,5 @@
-﻿namespace Y.IssueTracker.Users.Domain
+﻿namespace Y.IssueTracker.Users.Domain;
+
+public interface IUserRepository : IRepository<User>
 {
-    public interface IUserRepository : IRepository<User>
-    {
-    }
 }

@@ -1,15 +1,14 @@
-﻿namespace Y.IssueTracker.Users
+﻿namespace Y.IssueTracker.Users;
+
+using System;
+using System.Threading.Tasks;
+using Results;
+
+public interface IUserQueryService
 {
-    using System;
-    using System.Threading.Tasks;
-    using Results;
+    Task<IUserResult[]> QueryAllAsync();
 
-    public interface IUserQueryService
-    {
-        Task<IUserResult[]> QueryAllAsync();
+    Task<IUserResult> QueryByIdAsync(Guid id);
 
-        Task<IUserResult> QueryByIdAsync(Guid id);
-
-        Task<IUserResult> QueryByCredentialsAsync(string email, string password);
-    }
+    Task<IUserResult> QueryByCredentialsAsync(string email, string password);
 }

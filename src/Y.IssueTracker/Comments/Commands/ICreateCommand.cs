@@ -1,13 +1,12 @@
-﻿namespace Y.IssueTracker.Comments.Commands
+﻿namespace Y.IssueTracker.Comments.Commands;
+
+using System;
+
+public interface ICreateCommand
 {
-    using System;
+    Guid IssueId { get; }
 
-    public interface ICreateCommand
-    {
-        Guid IssueId { get; }
+    string Text { get; }
 
-        string Text { get; }
-
-        Guid AuthorUserId { get; }
-    }
+    Guid AuthorUserId { get; }
 }

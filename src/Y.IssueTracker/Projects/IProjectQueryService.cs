@@ -1,13 +1,12 @@
-﻿namespace Y.IssueTracker.Projects
+﻿namespace Y.IssueTracker.Projects;
+
+using System;
+using System.Threading.Tasks;
+using Results;
+
+public interface IProjectQueryService
 {
-    using System;
-    using System.Threading.Tasks;
-    using Results;
+    Task<IProjectResult[]> QueryAllAsync();
 
-    public interface IProjectQueryService
-    {
-        Task<IProjectResult[]> QueryAllAsync();
-
-        Task<IProjectResult> QueryByIdAsync(Guid id);
-    }
+    Task<IProjectResult> QueryByIdAsync(Guid id);
 }

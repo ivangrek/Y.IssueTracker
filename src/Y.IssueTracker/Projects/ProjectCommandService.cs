@@ -1,156 +1,153 @@
-﻿#nullable enable
+﻿namespace Y.IssueTracker.Projects;
 
-namespace Y.IssueTracker.Projects
+using System;
+using System.Threading.Tasks;
+using Commands;
+using Domain;
+
+internal sealed class ProjectCommandService : IProjectCommandService
 {
-    using System;
-    using System.Threading.Tasks;
-    using Commands;
-    using Domain;
+    private readonly IUnitOfWork unitOfWork;
+    private readonly IProjectRepository projectRepository;
 
-    internal sealed class ProjectCommandService : IProjectCommandService
+    public ProjectCommandService(
+        IUnitOfWork unitOfWork,
+        IProjectRepository projectRepository)
     {
-        private readonly IUnitOfWork unitOfWork;
-        private readonly IProjectRepository projectRepository;
+        this.unitOfWork = unitOfWork;
+        this.projectRepository = projectRepository;
+    }
 
-        public ProjectCommandService(
-            IUnitOfWork unitOfWork,
-            IProjectRepository projectRepository)
+    public async Task<IResult> ExecuteAsync(ICreateCommand command)
+    {
+        if (string.IsNullOrWhiteSpace(command.Name))
         {
-            this.unitOfWork = unitOfWork;
-            this.projectRepository = projectRepository;
+            return Result.Invalid()
+               .WithError(nameof(command.Name), $"{nameof(command.Name)} is required.")
+               .Build();
         }
 
-        public async Task<IResult> ExecuteAsync(ICreateCommand command)
+        var project = new Project(Guid.NewGuid())
         {
-            if (string.IsNullOrWhiteSpace(command.Name))
-            {
-                return Result.Invalid()
-                   .WithError(nameof(command.Name), $"{nameof(command.Name)} is required.")
-                   .Build();
-            }
+            Name = command.Name,
+            IsActive = true
+        };
 
-            var project = new Project(Guid.NewGuid())
-            {
-                Name = command.Name,
-                IsActive = true
-            };
+        await this.projectRepository
+            .AddAsync(project);
 
-            await this.projectRepository
-                .AddAsync(project);
+        await this.unitOfWork
+            .CommitAsync();
 
-            await this.unitOfWork
-                .CommitAsync();
+        return Result.Success();
+    }
 
-            return Result.Success();
+    public async Task<IResult> ExecuteAsync(IUpdateCommand command)
+    {
+        if (string.IsNullOrWhiteSpace(command.Name))
+        {
+            return Result.Invalid()
+               .WithError(nameof(command.Name), $"{nameof(command.Name)} is required.")
+               .Build();
         }
 
-        public async Task<IResult> ExecuteAsync(IUpdateCommand command)
+        var project = await this.projectRepository
+            .QueryByIdAsync(command.Id);
+
+        if (project is null)
         {
-            if (string.IsNullOrWhiteSpace(command.Name))
-            {
-                return Result.Invalid()
-                   .WithError(nameof(command.Name), $"{nameof(command.Name)} is required.")
-                   .Build();
-            }
-
-            var project = await this.projectRepository
-                .QueryByIdAsync(command.Id);
-
-            if (project is null)
-            {
-                return Result.Failure()
-                   .WithError("Not exist.")
-                   .Build();
-            }
-
-            if (!project.IsActive)
-            {
-                return Result.Failure()
-                   .WithError("Invalid operation.")
-                   .Build();
-            }
-
-            project.Name = command.Name;
-
-            await this.unitOfWork
-                .CommitAsync();
-
-            return Result.Success();
+            return Result.Failure()
+               .WithError("Not exist.")
+               .Build();
         }
 
-        public async Task<IResult> ExecuteAsync(IDeleteCommand command)
+        if (!project.IsActive)
         {
-            var project = await this.projectRepository
-                .QueryByIdAsync(command.Id);
-
-            if (project is null)
-            {
-                return Result.Failure()
-                    .WithError("Not exist.")
-                    .Build();
-            }
-
-            this.projectRepository
-                .Remove(project);
-
-            await this.unitOfWork
-                .CommitAsync();
-
-            return Result.Success();
+            return Result.Failure()
+               .WithError("Invalid operation.")
+               .Build();
         }
 
-        public async Task<IResult> ExecuteAsync(IDeactivateCommand command)
+        project.Name = command.Name;
+
+        await this.unitOfWork
+            .CommitAsync();
+
+        return Result.Success();
+    }
+
+    public async Task<IResult> ExecuteAsync(IDeleteCommand command)
+    {
+        var project = await this.projectRepository
+            .QueryByIdAsync(command.Id);
+
+        if (project is null)
         {
-            var project = await this.projectRepository
-                .QueryByIdAsync(command.Id);
-
-            if (project is null)
-            {
-                return Result.Failure()
-                    .WithError("Not exist.")
-                    .Build();
-            }
-
-            if (!project.IsActive)
-            {
-                return Result.Failure()
-                    .WithError("Invalid operation.")
-                    .Build();
-            }
-
-            project.IsActive = false;
-
-            await this.unitOfWork
-                .CommitAsync();
-
-            return Result.Success();
+            return Result.Failure()
+                .WithError("Not exist.")
+                .Build();
         }
 
-        public async Task<IResult> ExecuteAsync(IActivateCommand command)
+        this.projectRepository
+            .Remove(project);
+
+        await this.unitOfWork
+            .CommitAsync();
+
+        return Result.Success();
+    }
+
+    public async Task<IResult> ExecuteAsync(IDeactivateCommand command)
+    {
+        var project = await this.projectRepository
+            .QueryByIdAsync(command.Id);
+
+        if (project is null)
         {
-            var project = await this.projectRepository
-                .QueryByIdAsync(command.Id);
-
-            if (project is null)
-            {
-                return Result.Failure()
-                    .WithError("Not exist.")
-                    .Build();
-            }
-
-            if (project.IsActive)
-            {
-                return Result.Failure()
-                    .WithError("Invalid operation.")
-                    .Build();
-            }
-
-            project.IsActive = true;
-
-            await this.unitOfWork
-                .CommitAsync();
-
-            return Result.Success();
+            return Result.Failure()
+                .WithError("Not exist.")
+                .Build();
         }
+
+        if (!project.IsActive)
+        {
+            return Result.Failure()
+                .WithError("Invalid operation.")
+                .Build();
+        }
+
+        project.IsActive = false;
+
+        await this.unitOfWork
+            .CommitAsync();
+
+        return Result.Success();
+    }
+
+    public async Task<IResult> ExecuteAsync(IActivateCommand command)
+    {
+        var project = await this.projectRepository
+            .QueryByIdAsync(command.Id);
+
+        if (project is null)
+        {
+            return Result.Failure()
+                .WithError("Not exist.")
+                .Build();
+        }
+
+        if (project.IsActive)
+        {
+            return Result.Failure()
+                .WithError("Invalid operation.")
+                .Build();
+        }
+
+        project.IsActive = true;
+
+        await this.unitOfWork
+            .CommitAsync();
+
+        return Result.Success();
     }
 }

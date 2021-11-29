@@ -1,10 +1,9 @@
-﻿namespace Y.IssueTracker.Issues.Domain
+﻿namespace Y.IssueTracker.Issues.Domain;
+
+public enum IssueStatus
 {
-    public enum IssueStatus
-    {
-        Opened,
-        InProgress,
-        Resolved,
-        Closed
-    }
+    Opened,
+    InProgress,
+    Resolved,
+    Closed
 }

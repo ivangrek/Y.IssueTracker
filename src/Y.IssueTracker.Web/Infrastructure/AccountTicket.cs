@@ -1,14 +1,13 @@
-﻿namespace Y.IssueTracker.Web.Infrastructure
+﻿namespace Y.IssueTracker.Web.Infrastructure;
+
+using System;
+using Microsoft.AspNetCore.Authentication;
+
+internal sealed class AccountTicket
 {
-    using System;
-    using Microsoft.AspNetCore.Authentication;
+    public Guid Id { get; init; }
 
-    internal sealed class AccountTicket
-    {
-        public Guid Id { get; init; }
+    public Guid UserId { get; init; }
 
-        public Guid UserId { get; init; }
-
-        public AuthenticationTicket Value { get; init; }
-    }
+    public AuthenticationTicket Value { get; init; }
 }

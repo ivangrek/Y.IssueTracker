@@ -1,6 +1,5 @@
-﻿namespace Y.IssueTracker.Priorities.Domain
+﻿namespace Y.IssueTracker.Priorities.Domain;
+
+public interface IPriorityRepository : IRepository<Priority>
 {
-    public interface IPriorityRepository : IRepository<Priority>
-    {
-    }
 }

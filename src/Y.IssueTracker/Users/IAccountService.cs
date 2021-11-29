@@ -1,13 +1,12 @@
-﻿namespace Y.IssueTracker.Users
+﻿namespace Y.IssueTracker.Users;
+
+using System;
+using System.Threading.Tasks;
+using Y.IssueTracker.Users.Domain;
+
+public interface IAccountService
 {
-    using System;
-    using System.Threading.Tasks;
-    using Y.IssueTracker.Users.Domain;
+    Task SignInAsync(Guid userId, string name, Role role, bool rememberMe);
 
-    public interface IAccountService
-    {
-        Task SignInAsync(Guid userId, string name, Role role, bool rememberMe);
-
-        Task SignOutAsync(Guid userId);
-    }
+    Task SignOutAsync(Guid userId);
 }

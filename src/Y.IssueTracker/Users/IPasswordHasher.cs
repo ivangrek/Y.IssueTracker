@@ -1,7 +1,6 @@
-﻿namespace Y.IssueTracker.Users
+﻿namespace Y.IssueTracker.Users;
+
+public interface IPasswordHasher
 {
-    public interface IPasswordHasher
-    {
-        string HashPassword(string password);
-    }
+    string HashPassword(string password);
 }

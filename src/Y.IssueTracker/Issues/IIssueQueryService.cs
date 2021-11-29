@@ -1,15 +1,14 @@
-﻿namespace Y.IssueTracker.Issues
+﻿namespace Y.IssueTracker.Issues;
+
+using System;
+using System.Threading.Tasks;
+using Results;
+
+public interface IIssueQueryService
 {
-    using System;
-    using System.Threading.Tasks;
-    using Results;
+    Task<IIssueForListItemResult[]> QueryIssuesForListAsync();
 
-    public interface IIssueQueryService
-    {
-        Task<IIssueForListItemResult[]> QueryIssuesForListAsync();
+    Task<IIssueResult> QueryByIdAsync(Guid id);
 
-        Task<IIssueResult> QueryByIdAsync(Guid id);
-
-        Task<IIssueForViewResult> QueryIssueForViewAsync(Guid id);
-    }
+    Task<IIssueForViewResult> QueryIssueForViewAsync(Guid id);
 }

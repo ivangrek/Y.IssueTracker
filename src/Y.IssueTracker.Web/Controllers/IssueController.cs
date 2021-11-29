@@ -1,253 +1,252 @@
-﻿namespace Y.IssueTracker.Web.Controllers
+﻿namespace Y.IssueTracker.Web.Controllers;
+
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Categories;
+using Comments;
+using Infrastructure;
+using Issues;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Models.Issue;
+using Priorities;
+using Projects;
+using Users;
+
+[Authorize]
+public sealed class IssueController : Controller
 {
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Categories;
-    using Comments;
-    using Infrastructure;
-    using Issues;
-    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.AspNetCore.Mvc.Rendering;
-    using Models.Issue;
-    using Priorities;
-    using Projects;
-    using Users;
+    private readonly IIssueCommandService issueCommandService;
+    private readonly IIssueQueryService issueQueryService;
+    private readonly IProjectQueryService projectQueryService;
+    private readonly ICategoryQueryService categoryQueryService;
+    private readonly IPriorityQueryService priorityQueryService;
+    private readonly ICommentQueryService commentQueryService;
+    private readonly IUserQueryService userQueryService;
 
-    [Authorize]
-    public sealed class IssueController : Controller
+    public IssueController(
+        IIssueCommandService issueCommandService,
+        IIssueQueryService issueQueryService,
+        IProjectQueryService projectQueryService,
+        ICategoryQueryService categoryQueryService,
+        IPriorityQueryService priorityQueryService,
+        ICommentQueryService commentQueryService,
+        IUserQueryService userQueryService)
     {
-        private readonly IIssueCommandService issueCommandService;
-        private readonly IIssueQueryService issueQueryService;
-        private readonly IProjectQueryService projectQueryService;
-        private readonly ICategoryQueryService categoryQueryService;
-        private readonly IPriorityQueryService priorityQueryService;
-        private readonly ICommentQueryService commentQueryService;
-        private readonly IUserQueryService userQueryService;
+        this.issueCommandService = issueCommandService;
+        this.issueQueryService = issueQueryService;
+        this.projectQueryService = projectQueryService;
+        this.categoryQueryService = categoryQueryService;
+        this.priorityQueryService = priorityQueryService;
+        this.commentQueryService = commentQueryService;
+        this.userQueryService = userQueryService;
+    }
 
-        public IssueController(
-            IIssueCommandService issueCommandService,
-            IIssueQueryService issueQueryService,
-            IProjectQueryService projectQueryService,
-            ICategoryQueryService categoryQueryService,
-            IPriorityQueryService priorityQueryService,
-            ICommentQueryService commentQueryService,
-            IUserQueryService userQueryService)
+    [HttpGet]
+    public async Task<IActionResult> Index()
+    {
+        var issues = await this.issueQueryService
+            .QueryIssuesForListAsync();
+
+        return View(issues);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> View(Guid id)
+    {
+        var issueTask = this.issueQueryService
+            .QueryIssueForViewAsync(id);
+
+        var commentsTask = this.commentQueryService
+            .QueryCommentsForViewAsync(id);
+
+        var issue = await issueTask;
+        var comments = await commentsTask;
+
+        var viewModel = new ViewIssueViewModel
         {
-            this.issueCommandService = issueCommandService;
-            this.issueQueryService = issueQueryService;
-            this.projectQueryService = projectQueryService;
-            this.categoryQueryService = categoryQueryService;
-            this.priorityQueryService = priorityQueryService;
-            this.commentQueryService = commentQueryService;
-            this.userQueryService = userQueryService;
+            Issue = issue,
+            Comments = comments
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Create()
+    {
+        await InitDropdownListsAsync();
+
+        var viewModel = new CreateIssueViewModel();
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(CreateIssueViewModel viewModel)
+    {
+        viewModel.AuthorUserId = User.GetUserId();
+
+        var result = await this.issueCommandService
+            .ExecuteAsync(viewModel);
+
+        if (result.Status is ResultStatus.Success)
+        {
+            return RedirectToAction(nameof(Index));
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Index()
+        if (result.Status is ResultStatus.Invalid)
         {
-            var issues = await this.issueQueryService
-                .QueryIssuesForListAsync();
-
-            return View(issues);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> View(Guid id)
-        {
-            var issueTask = this.issueQueryService
-                .QueryIssueForViewAsync(id);
-
-            var commentsTask = this.commentQueryService
-                .QueryCommentsForViewAsync(id);
-
-            var issue = await issueTask;
-            var comments = await commentsTask;
-
-            var viewModel = new ViewIssueViewModel
+            foreach (var (key, value) in result.Errors)
             {
-                Issue = issue,
-                Comments = comments
-            };
-
-            return View(viewModel);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Create()
-        {
-            await InitDropdownListsAsync();
-
-            var viewModel = new CreateIssueViewModel();
-
-            return View(viewModel);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateIssueViewModel viewModel)
-        {
-            viewModel.AuthorUserId = User.GetUserId();
-
-            var result = await this.issueCommandService
-                .ExecuteAsync(viewModel);
-
-            if (result.Status is ResultStatus.Success)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            if (result.Status is ResultStatus.Invalid)
-            {
-                foreach (var (key, value) in result.Errors)
-                {
-                    ModelState.AddModelError(key, value);
-                }
-
-                await InitDropdownListsAsync();
-
-                return View(viewModel);
-            }
-
-            return BadRequest();
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Update(Guid id)
-        {
-            var issue = await this.issueQueryService
-                .QueryByIdAsync(id);
-
-            if (issue is null)
-            {
-                return BadRequest();
+                ModelState.AddModelError(key, value);
             }
 
             await InitDropdownListsAsync();
 
-            var viewModel = new UpdateIssueViewModel
+            return View(viewModel);
+        }
+
+        return BadRequest();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Update(Guid id)
+    {
+        var issue = await this.issueQueryService
+            .QueryByIdAsync(id);
+
+        if (issue is null)
+        {
+            return BadRequest();
+        }
+
+        await InitDropdownListsAsync();
+
+        var viewModel = new UpdateIssueViewModel
+        {
+            Id = issue.Id,
+            Name = issue.Name,
+            Description = issue.Description,
+            ProjectId = issue.ProjectId,
+            CategoryId = issue.CategoryId,
+            PriorityId = issue.PriorityId,
+            Status = issue.Status,
+            AssignedUserId = issue.AssignedUserId
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Update(UpdateIssueViewModel viewModel)
+    {
+        var result = await this.issueCommandService
+            .ExecuteAsync(viewModel);
+
+        if (result.Status is ResultStatus.Success)
+        {
+            return RedirectToAction(nameof(View), new { id = viewModel.Id });
+        }
+
+        if (result.Status is ResultStatus.Invalid)
+        {
+            foreach (var (key, value) in result.Errors)
             {
-                Id = issue.Id,
-                Name = issue.Name,
-                Description = issue.Description,
-                ProjectId = issue.ProjectId,
-                CategoryId = issue.CategoryId,
-                PriorityId = issue.PriorityId,
-                Status = issue.Status,
-                AssignedUserId = issue.AssignedUserId
-            };
+                ModelState.AddModelError(key, value);
+            }
+
+            await InitDropdownListsAsync();
 
             return View(viewModel);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Update(UpdateIssueViewModel viewModel)
+        return BadRequest();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var issue = await this.issueQueryService
+            .QueryByIdAsync(id);
+
+        if (issue is null)
         {
-            var result = await this.issueCommandService
-                .ExecuteAsync(viewModel);
-
-            if (result.Status is ResultStatus.Success)
-            {
-                return RedirectToAction(nameof(View), new { id = viewModel.Id });
-            }
-
-            if (result.Status is ResultStatus.Invalid)
-            {
-                foreach (var (key, value) in result.Errors)
-                {
-                    ModelState.AddModelError(key, value);
-                }
-
-                await InitDropdownListsAsync();
-
-                return View(viewModel);
-            }
-
             return BadRequest();
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Delete(Guid id)
+        var viewModel = new DeleteIssueViewModel
         {
-            var issue = await this.issueQueryService
-                .QueryByIdAsync(id);
+            Name = issue.Name
+        };
 
-            if (issue is null)
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(DeleteIssueViewModel viewModel)
+    {
+        var result = await this.issueCommandService
+            .ExecuteAsync(viewModel);
+
+        if (result.Status is ResultStatus.Success)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (result.Status is ResultStatus.Invalid)
+        {
+            foreach (var (key, value) in result.Errors)
             {
-                return BadRequest();
+                ModelState.AddModelError(key, value);
             }
-
-            var viewModel = new DeleteIssueViewModel
-            {
-                Name = issue.Name
-            };
 
             return View(viewModel);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(DeleteIssueViewModel viewModel)
-        {
-            var result = await this.issueCommandService
-                .ExecuteAsync(viewModel);
+        return BadRequest();
+    }
 
-            if (result.Status is ResultStatus.Success)
-            {
-                return RedirectToAction(nameof(Index));
-            }
+    private async Task InitDropdownListsAsync()
+    {
+        var projectsTask = this.projectQueryService
+            .QueryAllAsync();
 
-            if (result.Status is ResultStatus.Invalid)
-            {
-                foreach (var (key, value) in result.Errors)
-                {
-                    ModelState.AddModelError(key, value);
-                }
+        var categoriesTask = this.categoryQueryService
+            .QueryAllAsync();
 
-                return View(viewModel);
-            }
+        var prioritiesTask = this.priorityQueryService
+            .QueryAllAsync();
 
-            return BadRequest();
-        }
+        var usersTask = this.userQueryService
+            .QueryAllAsync();
 
-        private async Task InitDropdownListsAsync()
-        {
-            var projectsTask = this.projectQueryService
-                .QueryAllAsync();
+        var projects = await projectsTask;
+        var categories = await categoriesTask;
+        var priorities = await prioritiesTask;
+        var users = await usersTask;
 
-            var categoriesTask = this.categoryQueryService
-                .QueryAllAsync();
+        ViewBag.Projects = projects
+            .Where(x => x.IsActive)
+            .Select(x => new SelectListItem(x.Name, x.Id.ToString()));
 
-            var prioritiesTask = this.priorityQueryService
-                .QueryAllAsync();
+        ViewBag.Categories = categories
+            .Where(x => x.IsActive)
+            .Select(x => new SelectListItem(x.Name, x.Id.ToString()));
 
-            var usersTask = this.userQueryService
-                .QueryAllAsync();
+        ViewBag.Priorities = priorities
+            .Where(x => x.IsActive)
+            .OrderBy(x => x.Weight)
+            .Select(x => new SelectListItem(x.Name, x.Id.ToString()));
 
-            var projects = await projectsTask;
-            var categories = await categoriesTask;
-            var priorities = await prioritiesTask;
-            var users = await usersTask;
-
-            ViewBag.Projects = projects
+        ViewBag.Users = Enumerable.Repeat(new SelectListItem("-- None --", Guid.Empty.ToString()), 1)
+            .Union(users
                 .Where(x => x.IsActive)
-                .Select(x => new SelectListItem(x.Name, x.Id.ToString()));
-
-            ViewBag.Categories = categories
-                .Where(x => x.IsActive)
-                .Select(x => new SelectListItem(x.Name, x.Id.ToString()));
-
-            ViewBag.Priorities = priorities
-                .Where(x => x.IsActive)
-                .OrderBy(x => x.Weight)
-                .Select(x => new SelectListItem(x.Name, x.Id.ToString()));
-
-            ViewBag.Users = Enumerable.Repeat(new SelectListItem("-- None --", Guid.Empty.ToString()), 1)
-                .Union(users
-                    .Where(x => x.IsActive)
-                    .Select(x => new SelectListItem(x.Name, x.Id.ToString())));
-        }
+                .Select(x => new SelectListItem(x.Name, x.Id.ToString())));
     }
 }

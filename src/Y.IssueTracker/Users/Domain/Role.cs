@@ -1,9 +1,8 @@
-﻿namespace Y.IssueTracker.Users.Domain
+﻿namespace Y.IssueTracker.Users.Domain;
+
+public enum Role
 {
-    public enum Role
-    {
-        User,
-        Manager,
-        Administrator
-    }
+    User,
+    Manager,
+    Administrator
 }

@@ -1,11 +1,10 @@
-﻿namespace Y.IssueTracker.Users.Commands
+﻿namespace Y.IssueTracker.Users.Commands;
+
+using Domain;
+
+public interface ICreateCommand
 {
-    using Domain;
+    string Name { get; }
 
-    public interface ICreateCommand
-    {
-        string Name { get; }
-
-        Role Role { get; }
-    }
+    Role Role { get; }
 }

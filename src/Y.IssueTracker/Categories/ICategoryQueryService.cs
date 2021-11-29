@@ -1,13 +1,12 @@
-﻿namespace Y.IssueTracker.Categories
+﻿namespace Y.IssueTracker.Categories;
+
+using System;
+using System.Threading.Tasks;
+using Results;
+
+public interface ICategoryQueryService
 {
-    using System;
-    using System.Threading.Tasks;
-    using Results;
+    Task<ICategoryResult[]> QueryAllAsync();
 
-    public interface ICategoryQueryService
-    {
-        Task<ICategoryResult[]> QueryAllAsync();
-
-        Task<ICategoryResult> QueryByIdAsync(Guid id);
-    }
+    Task<ICategoryResult> QueryByIdAsync(Guid id);
 }

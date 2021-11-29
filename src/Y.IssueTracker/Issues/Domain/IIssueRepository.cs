@@ -1,6 +1,5 @@
-﻿namespace Y.IssueTracker.Issues.Domain
+﻿namespace Y.IssueTracker.Issues.Domain;
+
+public interface IIssueRepository : IRepository<Issue>
 {
-    public interface IIssueRepository : IRepository<Issue>
-    {
-    }
 }

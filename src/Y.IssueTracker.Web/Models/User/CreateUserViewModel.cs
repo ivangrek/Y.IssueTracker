@@ -1,12 +1,11 @@
-﻿namespace Y.IssueTracker.Web.Models.User
+﻿namespace Y.IssueTracker.Web.Models.User;
+
+using Users.Commands;
+using Users.Domain;
+
+public sealed class CreateUserViewModel : ICreateCommand
 {
-    using Users.Commands;
-    using Users.Domain;
+    public string Name { get; set; }
 
-    public sealed class CreateUserViewModel : ICreateCommand
-    {
-        public string Name { get; set; }
-
-        public Role Role { get; set; }
-    }
+    public Role Role { get; set; }
 }

@@ -1,17 +1,16 @@
-﻿namespace Y.IssueTracker.Comments.Results
+﻿namespace Y.IssueTracker.Comments.Results;
+
+using System;
+
+public interface ICommentForViewResult
 {
-    using System;
+    Guid Id { get; }
 
-    public interface ICommentForViewResult
-    {
-        Guid Id { get; }
+    string Text { get; }
 
-        string Text { get; }
+    Guid AuthorUserId { get; }
 
-        Guid AuthorUserId { get; }
+    string AuthorUserName { get; }
 
-        string AuthorUserName { get; }
-
-        DateTime CreatedOn { get; }
-    }
+    DateTime CreatedOn { get; }
 }

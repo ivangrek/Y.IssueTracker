@@ -1,14 +1,13 @@
-﻿namespace Y.IssueTracker.Users.Commands
+﻿namespace Y.IssueTracker.Users.Commands;
+
+using System;
+using Domain;
+
+public interface IUpdateCommand
 {
-    using System;
-    using Domain;
+    Guid Id { get; }
 
-    public interface IUpdateCommand
-    {
-        Guid Id { get; }
+    string Name { get; }
 
-        string Name { get; }
-
-        Role Role { get; }
-    }
+    Role Role { get; }
 }

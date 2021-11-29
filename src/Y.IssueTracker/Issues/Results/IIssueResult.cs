@@ -1,28 +1,27 @@
-﻿namespace Y.IssueTracker.Issues.Results
+﻿namespace Y.IssueTracker.Issues.Results;
+
+using System;
+using Domain;
+
+public interface IIssueResult
 {
-    using System;
-    using Domain;
+    Guid Id { get; }
 
-    public interface IIssueResult
-    {
-        Guid Id { get; }
+    string Name { get; }
 
-        string Name { get; }
+    string Description { get; }
 
-        string Description { get; }
+    Guid ProjectId { get; }
 
-        Guid ProjectId { get; }
+    Guid CategoryId { get; }
 
-        Guid CategoryId { get; }
+    Guid PriorityId { get; }
 
-        Guid PriorityId { get; }
+    IssueStatus Status { get; }
 
-        IssueStatus Status { get; }
+    Guid AssignedUserId { get; }
 
-        Guid AssignedUserId { get; }
+    Guid AuthorUserId { get; }
 
-        Guid AuthorUserId { get; }
-
-        DateTime CreatedOn { get; }
-    }
+    DateTime CreatedOn { get; }
 }

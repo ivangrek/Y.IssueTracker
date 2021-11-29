@@ -1,9 +1,8 @@
-﻿namespace Y.IssueTracker.Priorities.Commands
-{
-    public interface ICreateCommand
-    {
-        string Name { get; }
+﻿namespace Y.IssueTracker.Priorities.Commands;
 
-        int Weight { get; }
-    }
+public interface ICreateCommand
+{
+    string Name { get; }
+
+    int Weight { get; }
 }

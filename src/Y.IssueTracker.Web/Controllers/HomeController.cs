@@ -1,20 +1,19 @@
-﻿namespace Y.IssueTracker.Web.Controllers
+﻿namespace Y.IssueTracker.Web.Controllers;
+
+using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
+using Models;
+
+public sealed class HomeController : Controller
 {
-    using System.Diagnostics;
-    using Microsoft.AspNetCore.Mvc;
-    using Models;
-
-    public sealed class HomeController : Controller
+    public IActionResult Index()
     {
-        public IActionResult Index()
-        {
-            return View();
-        }
+        return View();
+    }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }

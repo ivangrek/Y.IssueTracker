@@ -1,13 +1,12 @@
-﻿namespace Y.IssueTracker.Projects.Results
+﻿namespace Y.IssueTracker.Projects.Results;
+
+using System;
+
+public interface IProjectResult
 {
-    using System;
+    Guid Id { get; }
 
-    public interface IProjectResult
-    {
-        Guid Id { get; }
+    string Name { get; }
 
-        string Name { get; }
-
-        bool IsActive { get; }
-    }
+    bool IsActive { get; }
 }

@@ -1,9 +1,8 @@
-﻿namespace Y.IssueTracker
-{
-    using System;
+﻿namespace Y.IssueTracker;
 
-    public interface IEntity
-    {
-        Guid Id { get; }
-    }
+using System;
+
+public interface IEntity
+{
+    Guid Id { get; }
 }

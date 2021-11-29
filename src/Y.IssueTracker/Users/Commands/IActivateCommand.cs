@@ -1,9 +1,8 @@
-﻿namespace Y.IssueTracker.Users.Commands
-{
-    using System;
+﻿namespace Y.IssueTracker.Users.Commands;
 
-    public interface IActivateCommand
-    {
-        Guid Id { get; }
-    }
+using System;
+
+public interface IActivateCommand
+{
+    Guid Id { get; }
 }

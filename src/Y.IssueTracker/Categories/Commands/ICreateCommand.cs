@@ -1,7 +1,6 @@
-﻿namespace Y.IssueTracker.Categories.Commands
+﻿namespace Y.IssueTracker.Categories.Commands;
+
+public interface ICreateCommand
 {
-    public interface ICreateCommand
-    {
-        string Name { get; }
-    }
+    string Name { get; }
 }

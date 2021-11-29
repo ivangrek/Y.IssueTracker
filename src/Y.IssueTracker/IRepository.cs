@@ -1,18 +1,17 @@
-﻿namespace Y.IssueTracker
+﻿namespace Y.IssueTracker;
+
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+
+public interface IRepository<TEntity>
+    where TEntity : class, IEntity
 {
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
+    Task AddAsync(TEntity entity);
 
-    public interface IRepository<TEntity>
-        where TEntity : class, IEntity
-    {
-        Task AddAsync(TEntity entity);
+    void Remove(TEntity entity);
 
-        void Remove(TEntity entity);
+    IQueryable<TEntity> QueryAll();
 
-        IQueryable<TEntity> QueryAll();
-
-        Task<TEntity> QueryByIdAsync(Guid id);
-    }
+    Task<TEntity> QueryByIdAsync(Guid id);
 }

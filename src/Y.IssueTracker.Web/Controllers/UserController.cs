@@ -1,266 +1,265 @@
-﻿namespace Y.IssueTracker.Web.Controllers
+﻿namespace Y.IssueTracker.Web.Controllers;
+
+using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Models.User;
+using Users;
+
+[Authorize]
+public sealed class UserController : Controller
 {
-    using System;
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Mvc;
-    using Models.User;
-    using Users;
+    private readonly IUserCommandService userCommandService;
+    private readonly IUserQueryService userQueryService;
 
-    [Authorize]
-    public sealed class UserController : Controller
+    public UserController(
+        IUserCommandService userCommandService,
+        IUserQueryService userQueryService)
     {
-        private readonly IUserCommandService userCommandService;
-        private readonly IUserQueryService userQueryService;
+        this.userCommandService = userCommandService;
+        this.userQueryService = userQueryService;
+    }
 
-        public UserController(
-            IUserCommandService userCommandService,
-            IUserQueryService userQueryService)
+    [HttpGet]
+    [Authorize(Roles = "Administrator,Manager")]
+    public async Task<IActionResult> Index()
+    {
+        var users = await this.userQueryService
+            .QueryAllAsync();
+
+        return View(users);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> View(Guid id)
+    {
+        var user = await this.userQueryService
+            .QueryByIdAsync(id);
+
+        return View(user);
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Administrator")]
+    public IActionResult Create()
+    {
+        var viewModel = new CreateUserViewModel();
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Administrator")]
+    public async Task<IActionResult> Create(CreateUserViewModel viewModel)
+    {
+        var result = await this.userCommandService
+            .ExecuteAsync(viewModel);
+
+        if (result.Status is ResultStatus.Success)
         {
-            this.userCommandService = userCommandService;
-            this.userQueryService = userQueryService;
+            return RedirectToAction(nameof(Index));
         }
 
-        [HttpGet]
-        [Authorize(Roles = "Administrator,Manager")]
-        public async Task<IActionResult> Index()
+        if (result.Status is ResultStatus.Invalid)
         {
-            var users = await this.userQueryService
-                .QueryAllAsync();
-
-            return View(users);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> View(Guid id)
-        {
-            var user = await this.userQueryService
-                .QueryByIdAsync(id);
-
-            return View(user);
-        }
-
-        [HttpGet]
-        [Authorize(Roles = "Administrator")]
-        public IActionResult Create()
-        {
-            var viewModel = new CreateUserViewModel();
+            foreach (var (key, value) in result.Errors)
+            {
+                ModelState.AddModelError(key, value);
+            }
 
             return View(viewModel);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Administrator")]
-        public async Task<IActionResult> Create(CreateUserViewModel viewModel)
+        return BadRequest();
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Administrator")]
+    public async Task<IActionResult> Update(Guid id)
+    {
+        var user = await this.userQueryService
+            .QueryByIdAsync(id);
+
+        if (user is null || !user.IsActive)
         {
-            var result = await this.userCommandService
-                .ExecuteAsync(viewModel);
-
-            if (result.Status is ResultStatus.Success)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            if (result.Status is ResultStatus.Invalid)
-            {
-                foreach (var (key, value) in result.Errors)
-                {
-                    ModelState.AddModelError(key, value);
-                }
-
-                return View(viewModel);
-            }
-
             return BadRequest();
         }
 
-        [HttpGet]
-        [Authorize(Roles = "Administrator")]
-        public async Task<IActionResult> Update(Guid id)
+        var viewModel = new UpdateUserViewModel
         {
-            var user = await this.userQueryService
-                .QueryByIdAsync(id);
+            Name = user.Name,
+            Role = user.Role
+        };
 
-            if (user is null || !user.IsActive)
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Administrator")]
+    public async Task<IActionResult> Update(UpdateUserViewModel viewModel)
+    {
+        var result = await this.userCommandService
+            .ExecuteAsync(viewModel);
+
+        if (result.Status is ResultStatus.Success)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (result.Status is ResultStatus.Invalid)
+        {
+            foreach (var (key, value) in result.Errors)
             {
-                return BadRequest();
+                ModelState.AddModelError(key, value);
             }
-
-            var viewModel = new UpdateUserViewModel
-            {
-                Name = user.Name,
-                Role = user.Role
-            };
 
             return View(viewModel);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Administrator")]
-        public async Task<IActionResult> Update(UpdateUserViewModel viewModel)
+        return BadRequest();
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Administrator")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var user = await this.userQueryService
+            .QueryByIdAsync(id);
+
+        if (user is null || user.IsDefault)
         {
-            var result = await this.userCommandService
-                .ExecuteAsync(viewModel);
-
-            if (result.Status is ResultStatus.Success)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            if (result.Status is ResultStatus.Invalid)
-            {
-                foreach (var (key, value) in result.Errors)
-                {
-                    ModelState.AddModelError(key, value);
-                }
-
-                return View(viewModel);
-            }
-
             return BadRequest();
         }
 
-        [HttpGet]
-        [Authorize(Roles = "Administrator")]
-        public async Task<IActionResult> Delete(Guid id)
+        var viewModel = new DeleteUserViewModel
         {
-            var user = await this.userQueryService
-                .QueryByIdAsync(id);
+            Id = user.Id,
+            Name = user.Name
+        };
 
-            if (user is null || user.IsDefault)
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Administrator")]
+    public async Task<IActionResult> Delete(DeleteUserViewModel viewModel)
+    {
+        var result = await this.userCommandService
+            .ExecuteAsync(viewModel);
+
+        if (result.Status is ResultStatus.Success)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (result.Status is ResultStatus.Invalid)
+        {
+            foreach (var (key, value) in result.Errors)
             {
-                return BadRequest();
+                ModelState.AddModelError(key, value);
             }
-
-            var viewModel = new DeleteUserViewModel
-            {
-                Id = user.Id,
-                Name = user.Name
-            };
 
             return View(viewModel);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Administrator")]
-        public async Task<IActionResult> Delete(DeleteUserViewModel viewModel)
+        return BadRequest();
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Administrator,Manager")]
+    public async Task<IActionResult> Deactivate(Guid id)
+    {
+        var user = await this.userQueryService
+            .QueryByIdAsync(id);
+
+        if (user is null || !user.IsActive || user.IsDefault)
         {
-            var result = await this.userCommandService
-                .ExecuteAsync(viewModel);
-
-            if (result.Status is ResultStatus.Success)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            if (result.Status is ResultStatus.Invalid)
-            {
-                foreach (var (key, value) in result.Errors)
-                {
-                    ModelState.AddModelError(key, value);
-                }
-
-                return View(viewModel);
-            }
-
             return BadRequest();
         }
 
-        [HttpGet]
-        [Authorize(Roles = "Administrator,Manager")]
-        public async Task<IActionResult> Deactivate(Guid id)
+        var viewModel = new DeactivateUserViewModel
         {
-            var user = await this.userQueryService
-                .QueryByIdAsync(id);
+            Id = user.Id,
+            Name = user.Name
+        };
 
-            if (user is null || !user.IsActive || user.IsDefault)
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Administrator,Manager")]
+    public async Task<IActionResult> Deactivate(DeactivateUserViewModel viewModel)
+    {
+        var result = await this.userCommandService
+            .ExecuteAsync(viewModel);
+
+        if (result.Status is ResultStatus.Success)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (result.Status is ResultStatus.Invalid)
+        {
+            foreach (var (key, value) in result.Errors)
             {
-                return BadRequest();
+                ModelState.AddModelError(key, value);
             }
-
-            var viewModel = new DeactivateUserViewModel
-            {
-                Id = user.Id,
-                Name = user.Name
-            };
 
             return View(viewModel);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Administrator,Manager")]
-        public async Task<IActionResult> Deactivate(DeactivateUserViewModel viewModel)
+        return BadRequest();
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Administrator,Manager")]
+    public async Task<IActionResult> Activate(Guid id)
+    {
+        var user = await this.userQueryService
+            .QueryByIdAsync(id);
+
+        if (user is null || user.IsActive || user.IsDefault)
         {
-            var result = await this.userCommandService
-                .ExecuteAsync(viewModel);
-
-            if (result.Status is ResultStatus.Success)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            if (result.Status is ResultStatus.Invalid)
-            {
-                foreach (var (key, value) in result.Errors)
-                {
-                    ModelState.AddModelError(key, value);
-                }
-
-                return View(viewModel);
-            }
-
             return BadRequest();
         }
 
-        [HttpGet]
-        [Authorize(Roles = "Administrator,Manager")]
-        public async Task<IActionResult> Activate(Guid id)
+        var viewModel = new ActivateUserViewModel
         {
-            var user = await this.userQueryService
-                .QueryByIdAsync(id);
+            Id = user.Id,
+            Name = user.Name
+        };
 
-            if (user is null || user.IsActive || user.IsDefault)
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Administrator,Manager")]
+    public async Task<IActionResult> Activate(ActivateUserViewModel viewModel)
+    {
+        var result = await this.userCommandService
+            .ExecuteAsync(viewModel);
+
+        if (result.Status is ResultStatus.Success)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (result.Status is ResultStatus.Invalid)
+        {
+            foreach (var (key, value) in result.Errors)
             {
-                return BadRequest();
+                ModelState.AddModelError(key, value);
             }
-
-            var viewModel = new ActivateUserViewModel
-            {
-                Id = user.Id,
-                Name = user.Name
-            };
 
             return View(viewModel);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Administrator,Manager")]
-        public async Task<IActionResult> Activate(ActivateUserViewModel viewModel)
-        {
-            var result = await this.userCommandService
-                .ExecuteAsync(viewModel);
-
-            if (result.Status is ResultStatus.Success)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            if (result.Status is ResultStatus.Invalid)
-            {
-                foreach (var (key, value) in result.Errors)
-                {
-                    ModelState.AddModelError(key, value);
-                }
-
-                return View(viewModel);
-            }
-
-            return BadRequest();
-        }
+        return BadRequest();
     }
 }

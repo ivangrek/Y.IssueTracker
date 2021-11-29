@@ -1,9 +1,8 @@
-﻿namespace Y.IssueTracker
-{
-    using System.Threading.Tasks;
+﻿namespace Y.IssueTracker;
 
-    public interface IUnitOfWork
-    {
-        Task CommitAsync();
-    }
+using System.Threading.Tasks;
+
+public interface IUnitOfWork
+{
+    Task CommitAsync();
 }

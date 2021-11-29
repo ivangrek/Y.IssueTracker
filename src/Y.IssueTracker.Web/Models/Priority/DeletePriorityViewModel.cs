@@ -1,12 +1,11 @@
-﻿namespace Y.IssueTracker.Web.Models.Priority
+﻿namespace Y.IssueTracker.Web.Models.Priority;
+
+using System;
+using Priorities.Commands;
+
+public sealed class DeletePriorityViewModel : IDeleteCommand
 {
-    using System;
-    using Priorities.Commands;
+    public Guid Id { get; set; }
 
-    public sealed class DeletePriorityViewModel : IDeleteCommand
-    {
-        public Guid Id { get; set; }
-
-        public string Name { get; set; }
-    }
+    public string Name { get; set; }
 }

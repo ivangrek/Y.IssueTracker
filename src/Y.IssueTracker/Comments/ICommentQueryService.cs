@@ -1,11 +1,10 @@
-﻿namespace Y.IssueTracker.Comments
-{
-    using System;
-    using System.Threading.Tasks;
-    using Results;
+﻿namespace Y.IssueTracker.Comments;
 
-    public interface ICommentQueryService
-    {
-        Task<ICommentForViewResult[]> QueryCommentsForViewAsync(Guid issueId);
-    }
+using System;
+using System.Threading.Tasks;
+using Results;
+
+public interface ICommentQueryService
+{
+    Task<ICommentForViewResult[]> QueryCommentsForViewAsync(Guid issueId);
 }

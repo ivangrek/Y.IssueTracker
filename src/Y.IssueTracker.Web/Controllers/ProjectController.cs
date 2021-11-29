@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Project;
 using Projects;
+using Y.IssueTracker.Web.Infrastructure;
 
 [Authorize(Roles = "Administrator,Manager")]
 public sealed class ProjectController : Controller
@@ -52,10 +53,7 @@ public sealed class ProjectController : Controller
 
         if (result.Status is ResultStatus.Invalid)
         {
-            foreach (var (key, value) in result.Errors)
-            {
-                ModelState.AddModelError(key, value);
-            }
+            ModelState.AddModelErrors(result.Errors);
 
             return View(viewModel);
         }
@@ -96,10 +94,7 @@ public sealed class ProjectController : Controller
 
         if (result.Status is ResultStatus.Invalid)
         {
-            foreach (var (key, value) in result.Errors)
-            {
-                ModelState.AddModelError(key, value);
-            }
+            ModelState.AddModelErrors(result.Errors);
 
             return View(viewModel);
         }
@@ -143,10 +138,7 @@ public sealed class ProjectController : Controller
 
         if (result.Status is ResultStatus.Invalid)
         {
-            foreach (var (key, value) in result.Errors)
-            {
-                ModelState.AddModelError(key, value);
-            }
+            ModelState.AddModelErrors(result.Errors);
 
             return View(viewModel);
         }
@@ -188,10 +180,7 @@ public sealed class ProjectController : Controller
 
         if (result.Status is ResultStatus.Invalid)
         {
-            foreach (var (key, value) in result.Errors)
-            {
-                ModelState.AddModelError(key, value);
-            }
+            ModelState.AddModelErrors(result.Errors);
 
             return View(viewModel);
         }
@@ -233,10 +222,7 @@ public sealed class ProjectController : Controller
 
         if (result.Status is ResultStatus.Invalid)
         {
-            foreach (var (key, value) in result.Errors)
-            {
-                ModelState.AddModelError(key, value);
-            }
+            ModelState.AddModelErrors(result.Errors);
 
             return View(viewModel);
         }

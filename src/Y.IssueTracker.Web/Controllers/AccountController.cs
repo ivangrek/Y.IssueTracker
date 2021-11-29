@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Account;
 using Y.IssueTracker.Users;
+using Y.IssueTracker.Web.Infrastructure;
 
 public sealed class AccountController : Controller
 {
@@ -36,10 +37,7 @@ public sealed class AccountController : Controller
 
         if (result.Status is ResultStatus.Invalid)
         {
-            foreach (var (key, value) in result.Errors)
-            {
-                ModelState.AddModelError(key, value);
-            }
+            ModelState.AddModelErrors(result.Errors);
 
             return View(viewModel);
         }
@@ -62,10 +60,7 @@ public sealed class AccountController : Controller
 
         if (result.Status is ResultStatus.Invalid)
         {
-            foreach (var (key, value) in result.Errors)
-            {
-                ModelState.AddModelError(key, value);
-            }
+            ModelState.AddModelErrors(result.Errors);
 
             return View(viewModel);
         }

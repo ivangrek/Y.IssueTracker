@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.User;
 using Users;
+using Y.IssueTracker.Web.Infrastructure;
 
 [Authorize]
 public sealed class UserController : Controller
@@ -64,10 +65,7 @@ public sealed class UserController : Controller
 
         if (result.Status is ResultStatus.Invalid)
         {
-            foreach (var (key, value) in result.Errors)
-            {
-                ModelState.AddModelError(key, value);
-            }
+            ModelState.AddModelErrors(result.Errors);
 
             return View(viewModel);
         }
@@ -111,10 +109,7 @@ public sealed class UserController : Controller
 
         if (result.Status is ResultStatus.Invalid)
         {
-            foreach (var (key, value) in result.Errors)
-            {
-                ModelState.AddModelError(key, value);
-            }
+            ModelState.AddModelErrors(result.Errors);
 
             return View(viewModel);
         }
@@ -158,10 +153,7 @@ public sealed class UserController : Controller
 
         if (result.Status is ResultStatus.Invalid)
         {
-            foreach (var (key, value) in result.Errors)
-            {
-                ModelState.AddModelError(key, value);
-            }
+            ModelState.AddModelErrors(result.Errors);
 
             return View(viewModel);
         }
@@ -205,10 +197,7 @@ public sealed class UserController : Controller
 
         if (result.Status is ResultStatus.Invalid)
         {
-            foreach (var (key, value) in result.Errors)
-            {
-                ModelState.AddModelError(key, value);
-            }
+            ModelState.AddModelErrors(result.Errors);
 
             return View(viewModel);
         }
@@ -252,10 +241,7 @@ public sealed class UserController : Controller
 
         if (result.Status is ResultStatus.Invalid)
         {
-            foreach (var (key, value) in result.Errors)
-            {
-                ModelState.AddModelError(key, value);
-            }
+            ModelState.AddModelErrors(result.Errors);
 
             return View(viewModel);
         }

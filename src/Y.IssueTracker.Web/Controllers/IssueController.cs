@@ -100,10 +100,7 @@ public sealed class IssueController : Controller
 
         if (result.Status is ResultStatus.Invalid)
         {
-            foreach (var (key, value) in result.Errors)
-            {
-                ModelState.AddModelError(key, value);
-            }
+            ModelState.AddModelErrors(result.Errors);
 
             await InitDropdownListsAsync();
 
@@ -155,10 +152,7 @@ public sealed class IssueController : Controller
 
         if (result.Status is ResultStatus.Invalid)
         {
-            foreach (var (key, value) in result.Errors)
-            {
-                ModelState.AddModelError(key, value);
-            }
+            ModelState.AddModelErrors(result.Errors);
 
             await InitDropdownListsAsync();
 
@@ -201,10 +195,7 @@ public sealed class IssueController : Controller
 
         if (result.Status is ResultStatus.Invalid)
         {
-            foreach (var (key, value) in result.Errors)
-            {
-                ModelState.AddModelError(key, value);
-            }
+            ModelState.AddModelErrors(result.Errors);
 
             return View(viewModel);
         }

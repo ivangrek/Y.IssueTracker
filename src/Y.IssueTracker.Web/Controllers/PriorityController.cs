@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Priority;
 using Priorities;
+using Y.IssueTracker.Web.Infrastructure;
 
 [Authorize(Roles = "Administrator,Manager")]
 public sealed class PriorityController : Controller
@@ -52,10 +53,7 @@ public sealed class PriorityController : Controller
 
         if (result.Status is ResultStatus.Invalid)
         {
-            foreach (var (key, value) in result.Errors)
-            {
-                ModelState.AddModelError(key, value);
-            }
+            ModelState.AddModelErrors(result.Errors);
 
             return View(viewModel);
         }
@@ -97,10 +95,7 @@ public sealed class PriorityController : Controller
 
         if (result.Status is ResultStatus.Invalid)
         {
-            foreach (var (key, value) in result.Errors)
-            {
-                ModelState.AddModelError(key, value);
-            }
+            ModelState.AddModelErrors(result.Errors);
 
             return View(viewModel);
         }
@@ -144,10 +139,7 @@ public sealed class PriorityController : Controller
 
         if (result.Status is ResultStatus.Invalid)
         {
-            foreach (var (key, value) in result.Errors)
-            {
-                ModelState.AddModelError(key, value);
-            }
+            ModelState.AddModelErrors(result.Errors);
 
             return View(viewModel);
         }
@@ -189,10 +181,7 @@ public sealed class PriorityController : Controller
 
         if (result.Status is ResultStatus.Invalid)
         {
-            foreach (var (key, value) in result.Errors)
-            {
-                ModelState.AddModelError(key, value);
-            }
+            ModelState.AddModelErrors(result.Errors);
 
             return View(viewModel);
         }
@@ -234,10 +223,7 @@ public sealed class PriorityController : Controller
 
         if (result.Status is ResultStatus.Invalid)
         {
-            foreach (var (key, value) in result.Errors)
-            {
-                ModelState.AddModelError(key, value);
-            }
+            ModelState.AddModelErrors(result.Errors);
 
             return View(viewModel);
         }

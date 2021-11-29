@@ -18,6 +18,34 @@ public sealed class AccountController : Controller
     }
 
     [HttpGet]
+    public IActionResult Register()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Register(RegisterViewModel viewModel)
+    {
+        var result = await this.userCommandService
+            .ExecuteAsync(viewModel);
+
+        if (result.Status is ResultStatus.Success)
+        {
+            return RedirectToAction(nameof(Login));
+        }
+
+        if (result.Status is ResultStatus.Invalid)
+        {
+            ModelState.AddModelErrors(result.Errors);
+
+            return View(viewModel);
+        }
+
+        return BadRequest();
+    }
+
+    [HttpGet]
     public IActionResult Login()
     {
         return View();

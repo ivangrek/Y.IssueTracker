@@ -71,4 +71,13 @@ internal sealed class UserQueryService : IUserQueryService
             .Cast<IUserResult>()
             .SingleOrDefaultAsync();
     }
+
+    public Task<bool> QueryCheckUserExistsAsync(string email)
+    {
+        return this.applicationDbContext
+            .Users
+            .AsNoTracking()
+            .Where(x => x.Email == email)
+            .AnyAsync();
+    }
 }

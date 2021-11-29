@@ -11,4 +11,6 @@ public interface IUserQueryService
     Task<IUserResult> QueryByIdAsync(Guid id);
 
     Task<IUserResult> QueryByCredentialsAsync(string email, string password);
+
+    Task<bool> QueryCheckUserExistsAsync(string email);
 }

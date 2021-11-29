@@ -1,0 +1,37 @@
+﻿@model Y.IssueTracker.Web.Models.Account.RegisterViewModel
+
+@{
+    Layout = "_AccountLayout";
+    ViewData["Title"] = "Register";
+}
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h5 class="border-bottom mb-3 pb-3">Register</h5>
+
+        <form asp-controller="Account" asp-action="Register" method="post">
+            <partial name="_ValidationSummary" />
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control">
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" type="password" class="form-control">
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="PasswordConfirm" class="form-label"></label>
+                <input asp-for="PasswordConfirm" type="password" class="form-control">
+                <span asp-validation-for="PasswordConfirm" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-success">Register</button>
+            <a asp-area="" asp-controller="Account" asp-action="Login" class="btn btn-link">Log in</a>
+        </form>
+    </div>
+</div>

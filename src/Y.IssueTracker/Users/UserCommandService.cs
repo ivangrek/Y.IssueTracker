@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Commands;
 using Domain;
@@ -199,6 +200,68 @@ internal sealed class UserCommandService : IUserCommandService
         }
 
         user.IsActive = true;
+
+        await this.unitOfWork
+            .CommitAsync();
+
+        return Result.Success();
+    }
+
+    public async Task<IResult> ExecuteAsync(IRegisterCommand command)
+    {
+        var errors = new List<KeyValuePair<string, string>>();
+        var emailPattern = @"\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\Z";
+
+        if (string.IsNullOrWhiteSpace(command.Email))
+        {
+            errors.Add(new KeyValuePair<string, string>(nameof(command.Email), $"{nameof(command.Email)} is required."));
+        }
+        else if (!Regex.IsMatch(command.Email, emailPattern))
+        {
+            errors.Add(new KeyValuePair<string, string>(nameof(command.Email), "Invalid email format."));
+        }
+        else
+        {
+            var userExists = await this.userQueryService
+                .QueryCheckUserExistsAsync(command.Email);
+
+            if (userExists)
+            {
+                errors.Add(new KeyValuePair<string, string>(nameof(command.Email), $"{nameof(command.Email)} exists."));
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(command.Password))
+        {
+            errors.Add(new KeyValuePair<string, string>(nameof(command.Password), $"{nameof(command.Password)} is required."));
+        }
+        else if (command.Password != command.PasswordConfirm)
+        {
+            errors.Add(new KeyValuePair<string, string>(nameof(command.PasswordConfirm), $"Should be the same with {nameof(command.Password)}."));
+        }
+
+        if (errors.Any())
+        {
+            return Result.Invalid()
+                .WithErrors(errors)
+                .Build();
+        }
+
+        var passwordHash = this.passwordHasher
+            .HashPassword(command.Password);
+
+        var user = new User(Guid.NewGuid())
+        {
+            Name = "No name",
+            Email = command.Email,
+            Password = passwordHash,
+            IsActive = true,
+            IsDefault = false,
+            Role = Role.User
+        };
+
+        await this.userRepository
+            .AddAsync(user);
 
         await this.unitOfWork
             .CommitAsync();

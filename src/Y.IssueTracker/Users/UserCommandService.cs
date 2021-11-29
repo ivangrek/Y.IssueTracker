@@ -1,6 +1,7 @@
 ﻿namespace Y.IssueTracker.Users
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Commands;
@@ -11,15 +12,21 @@
         private readonly IUnitOfWork unitOfWork;
         private readonly IUserRepository userRepository;
         private readonly IAccountService accountService;
+        private readonly IUserQueryService userQueryService;
+        private readonly IPasswordHasher passwordHasher;
 
         public UserCommandService(
             IUnitOfWork unitOfWork,
             IUserRepository userRepository,
-            IAccountService accountService)
+            IAccountService accountService,
+            IUserQueryService userQueryService,
+            IPasswordHasher passwordHasher)
         {
             this.unitOfWork = unitOfWork;
             this.userRepository = userRepository;
             this.accountService = accountService;
+            this.userQueryService = userQueryService;
+            this.passwordHasher = passwordHasher;
         }
 
         public async Task<IResult> ExecuteAsync(ICreateCommand command)
@@ -195,6 +202,46 @@
 
             await this.unitOfWork
                 .CommitAsync();
+
+            return Result.Success();
+        }
+
+        public async Task<IResult> ExecuteAsync(ILoginCommand command)
+        {
+            var errors = new List<KeyValuePair<string, string>>();
+
+            if (string.IsNullOrWhiteSpace(command.Email))
+            {
+                errors.Add(new KeyValuePair<string, string>(nameof(command.Email), $"{nameof(command.Email)} is required."));
+            }
+
+            if (string.IsNullOrWhiteSpace(command.Password))
+            {
+                errors.Add(new KeyValuePair<string, string>(nameof(command.Password), $"{nameof(command.Password)} is required."));
+            }
+
+            if (errors.Any())
+            {
+                return Result.Invalid()
+                    .WithErrors(errors)
+                    .Build();
+            }
+
+            var passwordHash = this.passwordHasher
+                .HashPassword(command.Password);
+
+            var user = await this.userQueryService
+                .QueryByCredentialsAsync(command.Email, passwordHash);
+
+            if (user is null)
+            {
+                return Result.Invalid()
+                    .WithError("Invalid email or password.")
+                    .Build();
+            }
+
+            await this.accountService
+                .SignInAsync(user.Id, user.Name, user.Role, command.RememberMe);
 
             return Result.Success();
         }

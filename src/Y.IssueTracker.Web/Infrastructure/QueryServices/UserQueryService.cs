@@ -51,5 +51,25 @@
                 .Cast<IUserResult>()
                 .SingleOrDefaultAsync();
         }
+
+        public Task<IUserResult> QueryByCredentialsAsync(string email, string password)
+        {
+            return this.applicationDbContext
+                .Users
+                .AsNoTracking()
+                .Where(x => x.Email == email)
+                .Where(x => x.Password == password)
+                .Where(x => x.IsActive)
+                .Select(x => new UserResult
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Role = x.Role,
+                    IsActive = x.IsActive,
+                    IsDefault = x.IsDefault
+                })
+                .Cast<IUserResult>()
+                .SingleOrDefaultAsync();
+        }
     }
 }

@@ -9,5 +9,7 @@
         Task<IUserResult[]> QueryAllAsync();
 
         Task<IUserResult> QueryByIdAsync(Guid id);
+
+        Task<IUserResult> QueryByCredentialsAsync(string email, string password);
     }
 }

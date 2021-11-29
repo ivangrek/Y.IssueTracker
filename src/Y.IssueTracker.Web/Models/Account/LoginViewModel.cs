@@ -1,8 +1,9 @@
 ﻿namespace Y.IssueTracker.Web.Models.Account
 {
     using System.ComponentModel.DataAnnotations;
+    using Y.IssueTracker.Users.Commands;
 
-    public sealed class LoginViewModel
+    public sealed class LoginViewModel : ILoginCommand
     {
         public string Email { get; set; }
 

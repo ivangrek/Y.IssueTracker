@@ -1,25 +1,21 @@
 ﻿namespace Y.IssueTracker.Web.Controllers
 {
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Security.Claims;
     using System.Threading.Tasks;
-    using Infrastructure;
     using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Authentication.Cookies;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.EntityFrameworkCore;
     using Models.Account;
-    using Users.Domain;
+    using Y.IssueTracker.Users;
 
     public sealed class AccountController : Controller
     {
-        private readonly ApplicationDbContext applicationDbContext;
+        private readonly IUserCommandService userCommandService;
 
-        public AccountController(ApplicationDbContext applicationDbContext)
+        public AccountController(
+            IUserCommandService userCommandService)
         {
-            this.applicationDbContext = applicationDbContext;
+            this.userCommandService = userCommandService;
         }
 
         [HttpGet]
@@ -32,44 +28,25 @@
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel viewModel)
         {
-            var user = await this.applicationDbContext
-                .Users
-                .Where(x => viewModel.Email == viewModel.Password)
-                .Where(x => x.Name == viewModel.Email)
-                .Where(x => x.IsActive)
-                .SingleOrDefaultAsync();
+            var result = await this.userCommandService
+                .ExecuteAsync(viewModel);
 
-            if (user is null)
+            if (result.Status is ResultStatus.Success)
             {
-                ModelState.AddModelError(string.Empty, "Invalid username or password.");
-
-                return View();
+                return RedirectToAction("Index", "Home");
             }
 
-            await DoLogin(user, viewModel.RememberMe);
-
-            return RedirectToAction("Index", "Home");
-        }
-
-        private Task DoLogin(User user, bool rememberMe)
-        {
-            var claims = new List<Claim>
+            if (result.Status is ResultStatus.Invalid)
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Name),
-                new Claim(ClaimTypes.Role, user.Role.ToString())
-            };
+                foreach (var (key, value) in result.Errors)
+                {
+                    ModelState.AddModelError(key, value);
+                }
 
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
+                return View(viewModel);
+            }
 
-            var properties = new AuthenticationProperties
-            {
-                IsPersistent = rememberMe
-            };
-
-            return HttpContext
-                .SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, properties);
+            return BadRequest();
         }
 
         [HttpPost]

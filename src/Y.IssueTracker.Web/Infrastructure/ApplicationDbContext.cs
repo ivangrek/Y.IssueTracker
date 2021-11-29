@@ -1,6 +1,7 @@
 ﻿namespace Y.IssueTracker.Web.Infrastructure
 {
     using System;
+    using System.Text;
     using Categories.Domain;
     using Comments.Domain;
     using Issues.Domain;
@@ -9,11 +10,19 @@
     using Priorities.Domain;
     using Projects.Domain;
     using Users.Domain;
+    using Y.IssueTracker.Users;
 
     public sealed class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options) { }
+        private readonly IPasswordHasher passwordHasher;
+
+        public ApplicationDbContext(
+            DbContextOptions<ApplicationDbContext> options,
+            IPasswordHasher passwordHasher)
+            : base(options)
+        {
+            this.passwordHasher = passwordHasher;
+        }
 
         public DbSet<User> Users { get; set; }
 
@@ -39,24 +48,30 @@
             SeedData(modelBuilder);
         }
 
-        private static void SeedData(ModelBuilder modelBuilder)
+        private void SeedData(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()
                 .HasData(new User(Guid.Parse("635ECF0D-A569-4E94-9C14-29F5D3FCF220"))
                 {
                     Name = "Admin",
+                    Email = "admin@example.com",
+                    Password = this.passwordHasher.HashPassword("test"),
                     Role = Role.Administrator,
                     IsActive = true,
                     IsDefault = true
                 }, new User(Guid.Parse("B5D61694-B355-46DC-AFA1-2C385D2B3A7D"))
                 {
                     Name = "Manager",
+                    Email = "manager@example.com",
+                    Password = this.passwordHasher.HashPassword("test"),
                     Role = Role.Manager,
                     IsActive = true,
                     IsDefault = false
                 }, new User(Guid.Parse("C04AB03D-49F1-4E03-9806-7282F9F61C54"))
                 {
                     Name = "User",
+                    Email = "user@example.com",
+                    Password = this.passwordHasher.HashPassword("test"),
                     Role = Role.User,
                     IsActive = true,
                     IsDefault = false

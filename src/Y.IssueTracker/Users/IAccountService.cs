@@ -2,9 +2,12 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Y.IssueTracker.Users.Domain;
 
     public interface IAccountService
     {
+        Task SignInAsync(Guid userId, string name, Role role, bool rememberMe);
+
         Task SignOutAsync(Guid userId);
     }
 }

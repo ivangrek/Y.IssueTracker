@@ -51,6 +51,7 @@
             services.AddScoped<IUserQueryService, UserQueryService>();
 
             services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IPasswordHasher, PasswordHasher>();
         }
     }
 }

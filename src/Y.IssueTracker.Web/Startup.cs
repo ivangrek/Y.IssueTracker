@@ -25,6 +25,7 @@ namespace Y.IssueTracker.Web
             services.AddApplication();
             services.AddInfrastructure();
 
+            services.AddHttpContextAccessor();
             services.AddControllersWithViews();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(x =>
@@ -32,6 +33,7 @@ namespace Y.IssueTracker.Web
                     x.LoginPath = "/Account/Login";
                     x.AccessDeniedPath = "/Account/Login";
                     x.ExpireTimeSpan = TimeSpan.FromHours(1);
+                    x.Cookie.HttpOnly = true;
                 });
 
             services.AddSingleton<ITicketStore, SimpleTicketStore>();

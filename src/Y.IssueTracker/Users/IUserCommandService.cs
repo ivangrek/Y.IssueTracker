@@ -14,5 +14,7 @@
         Task<IResult> ExecuteAsync(IDeactivateCommand command);
 
         Task<IResult> ExecuteAsync(IActivateCommand command);
+
+        Task<IResult> ExecuteAsync(ILoginCommand command);
     }
 }

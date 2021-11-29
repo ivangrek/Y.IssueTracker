@@ -59,14 +59,14 @@ namespace Y.IssueTracker.Projects
             if (project is null)
             {
                 return Result.Failure()
-                   .WithError(string.Empty, "Not exist.")
+                   .WithError("Not exist.")
                    .Build();
             }
 
             if (!project.IsActive)
             {
                 return Result.Failure()
-                   .WithError(string.Empty, "Invalid operation.")
+                   .WithError("Invalid operation.")
                    .Build();
             }
 
@@ -86,7 +86,7 @@ namespace Y.IssueTracker.Projects
             if (project is null)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Not exist.")
+                    .WithError("Not exist.")
                     .Build();
             }
 
@@ -107,14 +107,14 @@ namespace Y.IssueTracker.Projects
             if (project is null)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Not exist.")
+                    .WithError("Not exist.")
                     .Build();
             }
 
             if (!project.IsActive)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Invalid operation.")
+                    .WithError("Invalid operation.")
                     .Build();
             }
 
@@ -134,14 +134,14 @@ namespace Y.IssueTracker.Projects
             if (project is null)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Not exist.")
+                    .WithError("Not exist.")
                     .Build();
             }
 
             if (project.IsActive)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Invalid operation.")
+                    .WithError("Invalid operation.")
                     .Build();
             }
 

@@ -120,7 +120,7 @@
             if (issue is null)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Not exist.")
+                    .WithError("Not exist.")
                     .Build();
             }
 
@@ -146,7 +146,7 @@
             if (issue is null)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Not exist.")
+                    .WithError("Not exist.")
                     .Build();
             }
 

@@ -85,14 +85,14 @@
             if (user is null)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Not exist.")
+                    .WithError("Not exist.")
                     .Build();
             }
 
             if (!user.IsActive)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Invalid operation.")
+                    .WithError("Invalid operation.")
                     .Build();
             }
 
@@ -113,14 +113,14 @@
             if (user is null)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Not exist.")
+                    .WithError("Not exist.")
                     .Build();
             }
 
             if (user.IsDefault)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Invalid operation.")
+                    .WithError("Invalid operation.")
                     .Build();
             }
 
@@ -147,14 +147,14 @@
             if (user is null)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Not exist.")
+                    .WithError("Not exist.")
                     .Build();
             }
 
             if (!user.IsActive || user.IsDefault)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Invalid operation.")
+                    .WithError("Invalid operation.")
                     .Build();
             }
 
@@ -180,14 +180,14 @@
             if (user is null)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Not exist.")
+                    .WithError("Not exist.")
                     .Build();
             }
 
             if (user.IsActive || user.IsDefault)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Invalid operation.")
+                    .WithError("Invalid operation.")
                     .Build();
             }
 

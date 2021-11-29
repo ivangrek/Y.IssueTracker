@@ -5,6 +5,8 @@
 
     internal interface IResultWithErrorBuilder
     {
+        IResultWithErrorBuilder WithError(string value);
+
         IResultWithErrorBuilder WithError(string key, string value);
 
         IResultWithErrorBuilder WithErrors(IEnumerable<KeyValuePair<string, string>> errors);
@@ -60,6 +62,14 @@
             {
                 this.result = result;
                 this.errors = new List<KeyValuePair<string, string>>();
+            }
+
+            public IResultWithErrorBuilder WithError(string value)
+            {
+                this.errors
+                    .Add(new KeyValuePair<string, string>(string.Empty, value));
+
+                return this;
             }
 
             public IResultWithErrorBuilder WithError(string key, string value)

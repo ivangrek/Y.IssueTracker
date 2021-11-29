@@ -57,14 +57,14 @@
             if (category is null)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Not exist.")
+                    .WithError("Not exist.")
                     .Build();
             }
 
             if (!category.IsActive)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Invalid operation.")
+                    .WithError("Invalid operation.")
                     .Build();
             }
 
@@ -84,7 +84,7 @@
             if (category is null)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Not exist.")
+                    .WithError("Not exist.")
                     .Build();
             }
 
@@ -105,14 +105,14 @@
             if (category is null)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Not exist.")
+                    .WithError("Not exist.")
                     .Build();
             }
 
             if (!category.IsActive)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Invalid operation.")
+                    .WithError("Invalid operation.")
                     .Build();
             }
 
@@ -132,14 +132,14 @@
             if (category is null)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Not exist.")
+                    .WithError("Not exist.")
                     .Build();
             }
 
             if (category.IsActive)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Invalid operation.")
+                    .WithError("Invalid operation.")
                     .Build();
             }
 

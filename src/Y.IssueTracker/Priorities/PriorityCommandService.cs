@@ -60,14 +60,14 @@ namespace Y.IssueTracker.Priorities
             if (priority is null)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Not exist.")
+                    .WithError("Not exist.")
                     .Build();
             }
 
             if (!priority.IsActive)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Invalid operation.")
+                    .WithError("Invalid operation.")
                     .Build();
             }
 
@@ -88,7 +88,7 @@ namespace Y.IssueTracker.Priorities
             if (priority is null)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Not exist.")
+                    .WithError("Not exist.")
                     .Build();
             }
 
@@ -109,14 +109,14 @@ namespace Y.IssueTracker.Priorities
             if (priority is null)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Not exist.")
+                    .WithError("Not exist.")
                     .Build();
             }
 
             if (!priority.IsActive)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Invalid operation.")
+                    .WithError("Invalid operation.")
                     .Build();
             }
 
@@ -136,14 +136,14 @@ namespace Y.IssueTracker.Priorities
             if (priority is null)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Not exist.")
+                    .WithError("Not exist.")
                     .Build();
             }
 
             if (priority.IsActive)
             {
                 return Result.Failure()
-                    .WithError(string.Empty, "Invalid operation.")
+                    .WithError("Invalid operation.")
                     .Build();
             }
 

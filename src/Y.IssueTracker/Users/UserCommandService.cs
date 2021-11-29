@@ -245,4 +245,12 @@ internal sealed class UserCommandService : IUserCommandService
 
         return Result.Success();
     }
+
+    public async Task<IResult> ExecuteAsync(ILogoutCommand command)
+    {
+        await this.accountService
+            .SignOutAsync();
+
+        return Result.Success();
+    }
 }

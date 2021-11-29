@@ -16,4 +16,6 @@ public interface IUserCommandService
     Task<IResult> ExecuteAsync(IActivateCommand command);
 
     Task<IResult> ExecuteAsync(ILoginCommand command);
+
+    Task<IResult> ExecuteAsync(ILogoutCommand command);
 }

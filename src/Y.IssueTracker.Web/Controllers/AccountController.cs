@@ -1,8 +1,6 @@
 ﻿namespace Y.IssueTracker.Web.Controllers;
 
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Account;
@@ -52,11 +50,26 @@ public sealed class AccountController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize]
-    public async Task<IActionResult> Logout()
+    public async Task<IActionResult> Logout(LogoutViewModel viewModel)
     {
-        await HttpContext
-            .SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        var result = await this.userCommandService
+            .ExecuteAsync(viewModel);
 
-        return RedirectToAction("Index", "Home");
+        if (result.Status is ResultStatus.Success)
+        {
+            return RedirectToAction("Index", "Home");
+        }
+
+        if (result.Status is ResultStatus.Invalid)
+        {
+            foreach (var (key, value) in result.Errors)
+            {
+                ModelState.AddModelError(key, value);
+            }
+
+            return View(viewModel);
+        }
+
+        return BadRequest();
     }
 }

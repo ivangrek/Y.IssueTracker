@@ -41,6 +41,12 @@ internal sealed class AccountService : IAccountService
             .SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, properties);
     }
 
+    public Task SignOutAsync()
+    {
+        return this.httpContextAccessor.HttpContext
+                .SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    }
+
     public Task SignOutAsync(Guid userId)
     {
         var ticketKeys = SimpleTicketStore.Tickets

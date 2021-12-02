@@ -88,7 +88,7 @@ internal sealed class UserCommandService : IUserCommandService
         }
 
         var user = await this.userRepository
-            .QueryByIdAsync(command.Id);
+            .FindByIdAsync(command.Id);
 
         if (user is null)
         {
@@ -116,7 +116,7 @@ internal sealed class UserCommandService : IUserCommandService
     public async Task<IResult> ExecuteAsync(IDeleteCommand command)
     {
         var user = await this.userRepository
-            .QueryByIdAsync(command.Id);
+            .FindByIdAsync(command.Id);
 
         if (user is null)
         {
@@ -150,7 +150,7 @@ internal sealed class UserCommandService : IUserCommandService
     public async Task<IResult> ExecuteAsync(IDeactivateCommand command)
     {
         var user = await this.userRepository
-            .QueryByIdAsync(command.Id);
+            .FindByIdAsync(command.Id);
 
         if (user is null)
         {
@@ -183,7 +183,7 @@ internal sealed class UserCommandService : IUserCommandService
     public async Task<IResult> ExecuteAsync(IActivateCommand command)
     {
         var user = await this.userRepository
-            .QueryByIdAsync(command.Id);
+            .FindByIdAsync(command.Id);
 
         if (user is null)
         {

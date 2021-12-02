@@ -33,12 +33,10 @@ internal abstract class Repository<TEntity> : IRepository<TEntity>
             .Set<TEntity>();
     }
 
-    public async Task<TEntity> QueryByIdAsync(Guid id)
+    public Task<TEntity> FindByIdAsync(Guid id)
     {
-        var result = await this.ApplicationDbContext
+        return this.ApplicationDbContext
             .Set<TEntity>()
             .SingleOrDefaultAsync(x => x.Id == id);
-
-        return result;
     }
 }

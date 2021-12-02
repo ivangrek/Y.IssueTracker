@@ -52,7 +52,7 @@ internal sealed class CategoryCommandService : ICategoryCommandService
         }
 
         var category = await this.categoryRepository
-            .QueryByIdAsync(command.Id);
+            .FindByIdAsync(command.Id);
 
         if (category is null)
         {
@@ -79,7 +79,7 @@ internal sealed class CategoryCommandService : ICategoryCommandService
     public async Task<IResult> ExecuteAsync(IDeleteCommand command)
     {
         var category = await this.categoryRepository
-            .QueryByIdAsync(command.Id);
+            .FindByIdAsync(command.Id);
 
         if (category is null)
         {
@@ -100,7 +100,7 @@ internal sealed class CategoryCommandService : ICategoryCommandService
     public async Task<IResult> ExecuteAsync(IDeactivateCommand command)
     {
         var category = await this.categoryRepository
-            .QueryByIdAsync(command.Id);
+            .FindByIdAsync(command.Id);
 
         if (category is null)
         {
@@ -127,7 +127,7 @@ internal sealed class CategoryCommandService : ICategoryCommandService
     public async Task<IResult> ExecuteAsync(IActivateCommand command)
     {
         var category = await this.categoryRepository
-            .QueryByIdAsync(command.Id);
+            .FindByIdAsync(command.Id);
 
         if (category is null)
         {

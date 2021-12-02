@@ -13,5 +13,5 @@ public interface IRepository<TEntity>
 
     IQueryable<TEntity> QueryAll();
 
-    Task<TEntity> QueryByIdAsync(Guid id);
+    Task<TEntity> FindByIdAsync(Guid id);
 }

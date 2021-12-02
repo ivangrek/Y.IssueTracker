@@ -115,7 +115,7 @@ internal sealed class IssueCommandService : IIssueCommandService
         }
 
         var issue = await this.issueRepository
-            .QueryByIdAsync(command.Id);
+            .FindByIdAsync(command.Id);
 
         if (issue is null)
         {
@@ -141,7 +141,7 @@ internal sealed class IssueCommandService : IIssueCommandService
     public async Task<IResult> ExecuteAsync(IDeleteCommand command)
     {
         var issue = await this.issueRepository
-            .QueryByIdAsync(command.Id);
+            .FindByIdAsync(command.Id);
 
         if (issue is null)
         {

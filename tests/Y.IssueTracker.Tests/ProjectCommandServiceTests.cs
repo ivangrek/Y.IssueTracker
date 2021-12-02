@@ -114,7 +114,7 @@ internal sealed class ProjectCommandServiceTests
         };
 
         this.projectRepositoryMock
-            .Setup(x => x.QueryByIdAsync(It.IsAny<Guid>()))
+            .Setup(x => x.FindByIdAsync(It.IsAny<Guid>()))
             .Returns(Task.FromResult(project));
 
         var updateCommandMock = new Mock<IUpdateCommand>();
@@ -143,7 +143,7 @@ internal sealed class ProjectCommandServiceTests
         };
 
         this.projectRepositoryMock
-            .Setup(x => x.QueryByIdAsync(It.IsAny<Guid>()))
+            .Setup(x => x.FindByIdAsync(It.IsAny<Guid>()))
             .Returns(Task.FromResult(project));
 
         var updateCommandMock = new Mock<IUpdateCommand>();

@@ -53,7 +53,7 @@ internal sealed class PriorityCommandService : IPriorityCommandService
         }
 
         var priority = await this.priorityRepository
-            .QueryByIdAsync(command.Id);
+            .FindByIdAsync(command.Id);
 
         if (priority is null)
         {
@@ -81,7 +81,7 @@ internal sealed class PriorityCommandService : IPriorityCommandService
     public async Task<IResult> ExecuteAsync(IDeleteCommand command)
     {
         var priority = await this.priorityRepository
-            .QueryByIdAsync(command.Id);
+            .FindByIdAsync(command.Id);
 
         if (priority is null)
         {
@@ -102,7 +102,7 @@ internal sealed class PriorityCommandService : IPriorityCommandService
     public async Task<IResult> ExecuteAsync(IDeactivateCommand command)
     {
         var priority = await this.priorityRepository
-            .QueryByIdAsync(command.Id);
+            .FindByIdAsync(command.Id);
 
         if (priority is null)
         {
@@ -129,7 +129,7 @@ internal sealed class PriorityCommandService : IPriorityCommandService
     public async Task<IResult> ExecuteAsync(IActivateCommand command)
     {
         var priority = await this.priorityRepository
-            .QueryByIdAsync(command.Id);
+            .FindByIdAsync(command.Id);
 
         if (priority is null)
         {

@@ -52,7 +52,7 @@ internal sealed class ProjectCommandService : IProjectCommandService
         }
 
         var project = await this.projectRepository
-            .QueryByIdAsync(command.Id);
+            .FindByIdAsync(command.Id);
 
         if (project is null)
         {
@@ -79,7 +79,7 @@ internal sealed class ProjectCommandService : IProjectCommandService
     public async Task<IResult> ExecuteAsync(IDeleteCommand command)
     {
         var project = await this.projectRepository
-            .QueryByIdAsync(command.Id);
+            .FindByIdAsync(command.Id);
 
         if (project is null)
         {
@@ -100,7 +100,7 @@ internal sealed class ProjectCommandService : IProjectCommandService
     public async Task<IResult> ExecuteAsync(IDeactivateCommand command)
     {
         var project = await this.projectRepository
-            .QueryByIdAsync(command.Id);
+            .FindByIdAsync(command.Id);
 
         if (project is null)
         {
@@ -127,7 +127,7 @@ internal sealed class ProjectCommandService : IProjectCommandService
     public async Task<IResult> ExecuteAsync(IActivateCommand command)
     {
         var project = await this.projectRepository
-            .QueryByIdAsync(command.Id);
+            .FindByIdAsync(command.Id);
 
         if (project is null)
         {

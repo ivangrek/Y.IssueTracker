@@ -5,10 +5,14 @@ using Infrastructure;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Y.IssueTracker.Web.Infrastructure.Options;
 
 internal sealed class Startup
 {
@@ -20,12 +24,23 @@ internal sealed class Startup
     public IConfiguration Configuration { get; }
 
     // This method gets called by the runtime. Use this method to add services to the container.
-    public static void ConfigureServices(IServiceCollection services)
+    public void ConfigureServices(IServiceCollection services)
     {
         services.AddApplication();
         services.AddInfrastructure();
 
+        services.Configure<EmailServiceOptions>(Configuration.GetSection("EmailService"));
+
         services.AddHttpContextAccessor();
+        services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+        services.AddScoped<IUrlHelper>(x =>
+        {
+            var actionContext = x.GetRequiredService<IActionContextAccessor>().ActionContext;
+            var factory = x.GetRequiredService<IUrlHelperFactory>();
+
+            return factory.GetUrlHelper(actionContext);
+        });
+
         services.AddControllersWithViews();
         services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(x =>

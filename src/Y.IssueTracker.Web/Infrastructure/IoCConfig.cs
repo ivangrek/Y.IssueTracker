@@ -52,5 +52,6 @@ public static class IoCConfig
 
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<IEmailService, EmailService>();
     }
 }

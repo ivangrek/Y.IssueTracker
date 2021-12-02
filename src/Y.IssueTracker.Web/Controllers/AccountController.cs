@@ -95,4 +95,32 @@ public sealed class AccountController : Controller
 
         return BadRequest();
     }
+
+    [HttpGet]
+    public IActionResult ResetPassword()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResetPassword(ResetPasswordViewModel viewModel)
+    {
+        var result = await this.userCommandService
+            .ExecuteAsync(viewModel);
+
+        if (result.Status is ResultStatus.Success)
+        {
+            return RedirectToAction(nameof(Login));
+        }
+
+        if (result.Status is ResultStatus.Invalid)
+        {
+            ModelState.AddModelErrors(result.Errors);
+
+            return View(viewModel);
+        }
+
+        return BadRequest();
+    }
 }

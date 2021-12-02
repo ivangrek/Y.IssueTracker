@@ -19,7 +19,11 @@
             </div>
 
             <div class="mb-3">
-                <label asp-for="Password" class="form-label"></label>
+                <div class="d-flex">
+                    <label asp-for="Password" class="form-label"></label>
+                    <a asp-area="" asp-controller="Account" asp-action="ResetPassword" class="ms-auto">Forgot?</a>
+                </div>
+                
                 <input asp-for="Password" type="password" class="form-control">
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>

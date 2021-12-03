@@ -1,7 +1,5 @@
 ﻿namespace Y.IssueTracker.Comments.Commands;
 
-using System;
-
 public interface ICreateCommand
 {
     Guid IssueId { get; }

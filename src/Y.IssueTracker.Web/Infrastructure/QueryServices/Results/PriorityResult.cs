@@ -1,6 +1,5 @@
 ﻿namespace Y.IssueTracker.Web.Infrastructure.QueryServices.Results;
 
-using System;
 using Priorities.Results;
 
 internal sealed class PriorityResult : IPriorityResult

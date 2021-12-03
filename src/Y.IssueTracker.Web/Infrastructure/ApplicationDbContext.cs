@@ -1,6 +1,5 @@
 ﻿namespace Y.IssueTracker.Web.Infrastructure;
 
-using System;
 using Categories.Domain;
 using Comments.Domain;
 using Issues.Domain;

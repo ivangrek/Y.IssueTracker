@@ -1,6 +1,5 @@
 ﻿namespace Y.IssueTracker.Web.Infrastructure;
 
-using System;
 using System.Security;
 using System.Security.Claims;
 using Users.Domain;

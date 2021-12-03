@@ -1,7 +1,5 @@
 ﻿namespace Y.IssueTracker.Categories;
 
-using System;
-using System.Threading.Tasks;
 using Commands;
 using Domain;
 

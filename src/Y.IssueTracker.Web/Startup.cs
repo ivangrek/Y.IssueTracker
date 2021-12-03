@@ -1,6 +1,5 @@
 namespace Y.IssueTracker.Web;
 
-using System;
 using Infrastructure;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;

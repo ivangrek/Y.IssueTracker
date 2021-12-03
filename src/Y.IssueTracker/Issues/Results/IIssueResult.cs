@@ -1,6 +1,5 @@
 ﻿namespace Y.IssueTracker.Issues.Results;
 
-using System;
 using Domain;
 
 public interface IIssueResult

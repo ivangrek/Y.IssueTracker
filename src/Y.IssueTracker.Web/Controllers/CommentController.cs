@@ -1,7 +1,5 @@
 ﻿namespace Y.IssueTracker.Web.Controllers;
 
-using System;
-using System.Threading.Tasks;
 using Comments;
 using Infrastructure;
 using Microsoft.AspNetCore.Authorization;

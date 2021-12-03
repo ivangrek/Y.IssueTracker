@@ -1,6 +1,5 @@
 ﻿namespace Y.IssueTracker.Web.Models.User;
 
-using System;
 using Users.Commands;
 
 public sealed class DeactivateUserViewModel : IDeactivateCommand

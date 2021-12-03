@@ -1,7 +1,5 @@
 ﻿namespace Y.IssueTracker.Projects;
 
-using System;
-using System.Threading.Tasks;
 using Results;
 
 public interface IProjectQueryService

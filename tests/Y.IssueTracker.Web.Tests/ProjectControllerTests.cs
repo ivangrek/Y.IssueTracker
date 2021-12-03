@@ -1,7 +1,5 @@
 namespace Y.IssueTracker.Web.Tests;
 
-using System;
-using System.Threading.Tasks;
 using Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Models.Project;

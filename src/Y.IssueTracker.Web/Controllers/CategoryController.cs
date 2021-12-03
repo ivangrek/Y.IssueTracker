@@ -1,7 +1,5 @@
 ﻿namespace Y.IssueTracker.Web.Controllers;
 
-using System;
-using System.Threading.Tasks;
 using Categories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

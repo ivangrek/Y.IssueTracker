@@ -1,7 +1,5 @@
 ﻿namespace Y.IssueTracker.Priorities.Domain;
 
-using System;
-
 public sealed class Priority : IEntity
 {
     public Priority(Guid id)

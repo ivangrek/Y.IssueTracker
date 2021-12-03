@@ -1,7 +1,5 @@
 ﻿namespace Y.IssueTracker.Comments.Results;
 
-using System;
-
 public interface ICommentForViewResult
 {
     Guid Id { get; }

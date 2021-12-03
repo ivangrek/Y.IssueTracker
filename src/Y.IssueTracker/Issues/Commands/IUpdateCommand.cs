@@ -1,6 +1,5 @@
 ﻿namespace Y.IssueTracker.Issues.Commands;
 
-using System;
 using Domain;
 
 public interface IUpdateCommand

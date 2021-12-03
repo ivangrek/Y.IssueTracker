@@ -1,8 +1,5 @@
 ﻿namespace Y.IssueTracker.Web.Infrastructure.QueryServices;
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Comments;
 using Comments.Results;
 using Microsoft.EntityFrameworkCore;

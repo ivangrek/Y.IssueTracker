@@ -1,6 +1,5 @@
 ﻿namespace Y.IssueTracker.Web.Models.Issue;
 
-using System;
 using Issues.Commands;
 
 public sealed class DeleteIssueViewModel : IDeleteCommand

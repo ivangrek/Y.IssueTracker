@@ -1,6 +1,5 @@
 ﻿namespace Y.IssueTracker.Web.Models.Priority;
 
-using System;
 using Priorities.Commands;
 
 public sealed class DeactivateCategoryViewModel : IDeactivateCommand

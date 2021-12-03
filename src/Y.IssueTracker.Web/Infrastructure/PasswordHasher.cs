@@ -1,6 +1,5 @@
 ﻿namespace Y.IssueTracker.Web.Infrastructure;
 
-using System;
 using System.Text;
 using Y.IssueTracker.Users;
 

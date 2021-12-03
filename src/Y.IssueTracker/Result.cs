@@ -1,8 +1,5 @@
 ﻿namespace Y.IssueTracker;
 
-using System;
-using System.Collections.Generic;
-
 internal interface IResultWithErrorBuilder
 {
     IResultWithErrorBuilder WithError(string value);

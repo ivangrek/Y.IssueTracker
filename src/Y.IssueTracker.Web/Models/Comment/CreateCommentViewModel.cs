@@ -1,6 +1,5 @@
 ﻿namespace Y.IssueTracker.Web.Models.Comment;
 
-using System;
 using Comments.Commands;
 
 public sealed class CreateCommentViewModel : ICreateCommand

@@ -1,7 +1,5 @@
 ﻿namespace Y.IssueTracker.Comments.Domain;
 
-using System;
-
 public sealed class Comment : IEntity
 {
     public Comment(Guid id)

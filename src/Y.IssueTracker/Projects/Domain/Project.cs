@@ -1,7 +1,5 @@
 ﻿namespace Y.IssueTracker.Projects.Domain;
 
-using System;
-
 public sealed class Project : IEntity
 {
     public Project(Guid id)

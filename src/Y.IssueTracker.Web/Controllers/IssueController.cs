@@ -1,8 +1,5 @@
 ﻿namespace Y.IssueTracker.Web.Controllers;
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Categories;
 using Comments;
 using Infrastructure;

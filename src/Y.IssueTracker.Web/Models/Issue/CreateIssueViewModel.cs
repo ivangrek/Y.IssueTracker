@@ -1,6 +1,5 @@
 ﻿namespace Y.IssueTracker.Web.Models.Issue;
 
-using System;
 using System.ComponentModel;
 using Issues.Commands;
 

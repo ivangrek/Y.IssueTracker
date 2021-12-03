@@ -1,8 +1,5 @@
 ﻿namespace Y.IssueTracker.Web.Infrastructure.Repositories;
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 internal abstract class Repository<TEntity> : IRepository<TEntity>

@@ -1,7 +1,5 @@
 ﻿namespace Y.IssueTracker.Users;
 
-using System;
-using System.Threading.Tasks;
 using Y.IssueTracker.Users.Domain;
 
 public interface IAccountService

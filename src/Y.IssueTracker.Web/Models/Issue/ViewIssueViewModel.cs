@@ -1,6 +1,5 @@
 ﻿namespace Y.IssueTracker.Web.Models.Issue;
 
-using System;
 using Comments.Results;
 using Issues.Results;
 

@@ -1,7 +1,5 @@
 ﻿namespace Y.IssueTracker.Users.Domain;
 
-using System;
-
 public sealed class User : IEntity
 {
     public User(Guid id)

@@ -1,6 +1,5 @@
 ﻿namespace Y.IssueTracker.Web.Infrastructure.QueryServices.Results;
 
-using System;
 using Users.Domain;
 using Users.Results;
 

@@ -1,12 +1,12 @@
-# IssueTracker
+# Issue Tracker
 
-IssueTracker is a demo project.
+Issue Tracker is a demo project.
 
 ### Statuses
 
 [![CodeFactor](https://www.codefactor.io/repository/github/ivangrek/issuetracker/badge?s=bcd40c4fc3d84123146191caa302b28fed44d0e0)](https://www.codefactor.io/repository/github/ivangrek/issuetracker)
 
-[![.NET CI](https://github.com/ivangrek/IssueTracker/actions/workflows/dotnet.yml/badge.svg?branch=main)](https://github.com/ivangrek/IssueTracker/actions/workflows/dotnet.yml)
+[![.NET CI](https://github.com/ivangrek/Y.IssueTracker/actions/workflows/dotnet.yml/badge.svg?branch=main)](https://github.com/ivangrek/Y.IssueTracker/actions/workflows/dotnet.yml)
 
 ### Modeling
 

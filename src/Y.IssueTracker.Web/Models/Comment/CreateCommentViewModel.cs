@@ -1,12 +1,10 @@
 ﻿namespace Y.IssueTracker.Web.Models.Comment;
 
-using Comments.Commands;
-
-public sealed class CreateCommentViewModel : ICreateCommand
+public sealed class CreateCommentViewModel
 {
-    public Guid IssueId { get; set; }
+    public Guid IssueId { get; init; }
 
-    public string Text { get; set; }
+    public string Text { get; init; }
 
-    public Guid AuthorUserId { get; set; }
+    public Guid AuthorUserId { get; init; }
 }

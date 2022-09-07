@@ -1,12 +1,10 @@
 ﻿namespace Y.IssueTracker.Web.Models.Priority;
 
-using Priorities.Commands;
-
-public sealed class UpdatePriorityViewModel : IUpdateCommand
+public sealed class UpdatePriorityViewModel
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 
-    public string Name { get; set; }
+    public string Name { get; init; }
 
-    public int Weight { get; set; }
+    public int Weight { get; init; }
 }

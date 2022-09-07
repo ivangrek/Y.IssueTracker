@@ -1,10 +1,11 @@
 ﻿namespace Y.IssueTracker.Categories;
 
 using Results;
+using Y.IssueTracker.Categories.Queries;
 
 public interface ICategoryQueryService
 {
-    Task<ICategoryResult[]> QueryAllAsync();
+    Task<CategoryResult[]> HandleAsync(GetAllQuery query);
 
-    Task<ICategoryResult> QueryByIdAsync(Guid id);
+    Task<CategoryResult> HandleAsync(GetByIdQuery query);
 }

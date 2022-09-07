@@ -1,29 +1,28 @@
 ﻿namespace Y.IssueTracker.Web.Models.Issue;
 
 using System.ComponentModel;
-using Issues.Commands;
 using Issues.Domain;
 
-public sealed class UpdateIssueViewModel : IUpdateCommand
+public sealed class UpdateIssueViewModel
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 
-    public string Name { get; set; }
+    public string Name { get; init; }
 
-    public string Description { get; set; }
+    public string Description { get; init; }
 
     [DisplayName("Project")]
-    public Guid ProjectId { get; set; }
+    public Guid ProjectId { get; init; }
 
     [DisplayName("Category")]
-    public Guid CategoryId { get; set; }
+    public Guid CategoryId { get; init; }
 
     [DisplayName("Priority")]
-    public Guid PriorityId { get; set; }
+    public Guid PriorityId { get; init; }
 
     [DisplayName("Status")]
-    public IssueStatus Status { get; set; }
+    public IssueStatus Status { get; init; }
 
     [DisplayName("Assigned")]
-    public Guid AssignedUserId { get; set; }
+    public Guid AssignedUserId { get; init; }
 }

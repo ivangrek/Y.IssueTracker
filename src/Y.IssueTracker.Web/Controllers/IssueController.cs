@@ -1,63 +1,69 @@
 ﻿namespace Y.IssueTracker.Web.Controllers;
 
-using Categories;
-using Comments;
 using Infrastructure;
-using Issues;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Models.Issue;
-using Priorities;
-using Projects;
-using Users;
+using Y.IssueTracker.Comments.Queries;
+using Y.IssueTracker.Issues.Commands;
+using Y.IssueTracker.Issues.Queries;
+using Y.IssueTracker.Web.Services;
 
 [Authorize]
 public sealed class IssueController : Controller
 {
-    private readonly IIssueCommandService issueCommandService;
-    private readonly IIssueQueryService issueQueryService;
-    private readonly IProjectQueryService projectQueryService;
-    private readonly ICategoryQueryService categoryQueryService;
-    private readonly IPriorityQueryService priorityQueryService;
-    private readonly ICommentQueryService commentQueryService;
-    private readonly IUserQueryService userQueryService;
+    private readonly IIssueService issueService;
+    private readonly IProjectService projectService;
+    private readonly ICategoryService categoryService;
+    private readonly IPriorityService priorityService;
+    private readonly ICommentService commentService;
+    private readonly IUserService userService;
 
     public IssueController(
-        IIssueCommandService issueCommandService,
-        IIssueQueryService issueQueryService,
-        IProjectQueryService projectQueryService,
-        ICategoryQueryService categoryQueryService,
-        IPriorityQueryService priorityQueryService,
-        ICommentQueryService commentQueryService,
-        IUserQueryService userQueryService)
+        IIssueService issueService,
+        IProjectService projectService,
+        ICategoryService categoryService,
+        IPriorityService priorityService,
+        ICommentService commentService,
+        IUserService userService)
     {
-        this.issueCommandService = issueCommandService;
-        this.issueQueryService = issueQueryService;
-        this.projectQueryService = projectQueryService;
-        this.categoryQueryService = categoryQueryService;
-        this.priorityQueryService = priorityQueryService;
-        this.commentQueryService = commentQueryService;
-        this.userQueryService = userQueryService;
+        this.issueService = issueService;
+        this.projectService = projectService;
+        this.categoryService = categoryService;
+        this.priorityService = priorityService;
+        this.commentService = commentService;
+        this.userService = userService;
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> IndexAsync(int? page, int? pageCount)
     {
-        var issues = await this.issueQueryService
-            .QueryIssuesForListAsync();
+        if (page < 1 || pageCount < 1)
+        {
+            return NotFound();
+        }
 
-        return View(issues);
+        var query = new GetIssuesForListQuery
+        {
+            Page = page ?? 1,
+            PageCount = pageCount ?? int.MaxValue
+        };
+
+        var result = await this.issueService
+            .HandleAsync(query);
+
+        return View(result);
     }
 
     [HttpGet]
-    public async Task<IActionResult> View(Guid id)
+    public async Task<IActionResult> ViewAsync(Guid id)
     {
-        var issueTask = this.issueQueryService
-            .QueryIssueForViewAsync(id);
+        var issueTask = this.issueService
+            .HandleAsync(new Issues.Queries.GetIssueForViewQuery { Id = id });
 
-        var commentsTask = this.commentQueryService
-            .QueryCommentsForViewAsync(id);
+        var commentsTask = this.commentService
+            .HandleAsync(new GetCommentsForViewQuery { IssueId = id });
 
         var issue = await issueTask;
         var comments = await commentsTask;
@@ -72,7 +78,7 @@ public sealed class IssueController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Create()
+    public async Task<IActionResult> CreateAsync()
     {
         await InitDropdownListsAsync();
 
@@ -83,12 +89,21 @@ public sealed class IssueController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(CreateIssueViewModel viewModel)
+    public async Task<IActionResult> CreateAsync(CreateIssueViewModel viewModel)
     {
-        viewModel.AuthorUserId = User.GetUserId();
+        var command = new CreateCommand
+        {
+            Name = viewModel.Name,
+            Description = viewModel.Description,
+            ProjectId = viewModel.ProjectId,
+            CategoryId = viewModel.CategoryId,
+            PriorityId = viewModel.PriorityId,
+            AssignedUserId = viewModel.AssignedUserId,
+            AuthorUserId = User.GetUserId()
+        };
 
-        var result = await this.issueCommandService
-            .ExecuteAsync(viewModel);
+        var result = await this.issueService
+            .HandleAsync(command);
 
         if (result.Status is ResultStatus.Success)
         {
@@ -104,32 +119,37 @@ public sealed class IssueController : Controller
             return View(viewModel);
         }
 
-        return BadRequest();
+        return StatusCode(StatusCodes.Status500InternalServerError);
     }
 
     [HttpGet]
-    public async Task<IActionResult> Update(Guid id)
+    public async Task<IActionResult> UpdateAsync(Guid id)
     {
-        var issue = await this.issueQueryService
-            .QueryByIdAsync(id);
-
-        if (issue is null)
+        var query = new Issues.Queries.GetByIdQuery
         {
-            return BadRequest();
+            Id = id
+        };
+
+        var result = await this.issueService
+            .HandleAsync(query);
+
+        if (result is null)
+        {
+            return NotFound();
         }
 
         await InitDropdownListsAsync();
 
         var viewModel = new UpdateIssueViewModel
         {
-            Id = issue.Id,
-            Name = issue.Name,
-            Description = issue.Description,
-            ProjectId = issue.ProjectId,
-            CategoryId = issue.CategoryId,
-            PriorityId = issue.PriorityId,
-            Status = issue.Status,
-            AssignedUserId = issue.AssignedUserId
+            Id = result.Id,
+            Name = result.Name,
+            Description = result.Description,
+            ProjectId = result.ProjectId,
+            CategoryId = result.CategoryId,
+            PriorityId = result.PriorityId,
+            Status = result.Status,
+            AssignedUserId = result.AssignedUserId
         };
 
         return View(viewModel);
@@ -137,10 +157,22 @@ public sealed class IssueController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Update(UpdateIssueViewModel viewModel)
+    public async Task<IActionResult> UpdateAsync(UpdateIssueViewModel viewModel)
     {
-        var result = await this.issueCommandService
-            .ExecuteAsync(viewModel);
+        var command = new UpdateCommand
+        {
+            Id = viewModel.Id,
+            Name = viewModel.Name,
+            Description = viewModel.Description,
+            ProjectId = viewModel.ProjectId,
+            CategoryId = viewModel.CategoryId,
+            PriorityId = viewModel.PriorityId,
+            Status = viewModel.Status,
+            AssignedUserId = viewModel.AssignedUserId
+        };
+
+        var result = await this.issueService
+            .HandleAsync(command);
 
         if (result.Status is ResultStatus.Success)
         {
@@ -156,23 +188,28 @@ public sealed class IssueController : Controller
             return View(viewModel);
         }
 
-        return BadRequest();
+        return StatusCode(StatusCodes.Status500InternalServerError);
     }
 
     [HttpGet]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> DeleteAsync(Guid id)
     {
-        var issue = await this.issueQueryService
-            .QueryByIdAsync(id);
-
-        if (issue is null)
+        var query = new Issues.Queries.GetByIdQuery
         {
-            return BadRequest();
+            Id = id
+        };
+
+        var result = await this.issueService
+            .HandleAsync(query);
+
+        if (result is null)
+        {
+            return NotFound();
         }
 
         var viewModel = new DeleteIssueViewModel
         {
-            Name = issue.Name
+            Name = result.Name
         };
 
         return View(viewModel);
@@ -180,10 +217,15 @@ public sealed class IssueController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Delete(DeleteIssueViewModel viewModel)
+    public async Task<IActionResult> DeleteAsync(DeleteIssueViewModel viewModel)
     {
-        var result = await this.issueCommandService
-            .ExecuteAsync(viewModel);
+        var command = new DeleteCommand
+        {
+            Id = viewModel.Id
+        };
+
+        var result = await this.issueService
+            .HandleAsync(command);
 
         if (result.Status is ResultStatus.Success)
         {
@@ -197,22 +239,22 @@ public sealed class IssueController : Controller
             return View(viewModel);
         }
 
-        return BadRequest();
+        return StatusCode(StatusCodes.Status500InternalServerError);
     }
 
     private async Task InitDropdownListsAsync()
     {
-        var projectsTask = this.projectQueryService
-            .QueryAllAsync();
+        var projectsTask = this.projectService
+            .HandleAsync(new Projects.Queries.GetAllQuery { Page = 1, PageCount = int.MaxValue });
 
-        var categoriesTask = this.categoryQueryService
-            .QueryAllAsync();
+        var categoriesTask = this.categoryService
+            .HandleAsync(new Categories.Queries.GetAllQuery { Page = 1, PageCount = int.MaxValue });
 
-        var prioritiesTask = this.priorityQueryService
-            .QueryAllAsync();
+        var prioritiesTask = this.priorityService
+            .HandleAsync(new Priorities.Queries.GetAllQuery { Page = 1, PageCount = int.MaxValue });
 
-        var usersTask = this.userQueryService
-            .QueryAllAsync();
+        var usersTask = this.userService
+            .HandleAsync(new Users.Queries.GetAllQuery { Page = 1, PageCount = int.MaxValue });
 
         var projects = await projectsTask;
         var categories = await categoriesTask;
@@ -223,6 +265,7 @@ public sealed class IssueController : Controller
             .Where(x => x.IsActive)
             .Select(x => new SelectListItem(x.Name, x.Id.ToString()));
 
+        // TODO
         ViewBag.Categories = categories
             .Where(x => x.IsActive)
             .Select(x => new SelectListItem(x.Name, x.Id.ToString()));

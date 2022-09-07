@@ -5,21 +5,21 @@ using Commands;
 
 public interface IUserCommandService
 {
-    Task<IResult> ExecuteAsync(ICreateCommand command);
+    Task<IResult> HandleAsync(CreateCommand command);
 
-    Task<IResult> ExecuteAsync(IUpdateCommand command);
+    Task<IResult> HandleAsync(UpdateCommand command);
 
-    Task<IResult> ExecuteAsync(IDeleteCommand command);
+    Task<IResult> HandleAsync(DeactivateCommand command);
 
-    Task<IResult> ExecuteAsync(IDeactivateCommand command);
+    Task<IResult> HandleAsync(ActivateCommand command);
 
-    Task<IResult> ExecuteAsync(IActivateCommand command);
+    Task<IResult> HandleAsync(DeleteCommand command);
 
-    Task<IResult> ExecuteAsync(IRegisterCommand command);
+    //Task<IResult> HandleAsync(RegisterCommand command);
 
-    Task<IResult> ExecuteAsync(ILoginCommand command);
+    //Task<IResult> HandleAsync(LoginCommand command);
 
-    Task<IResult> ExecuteAsync(ILogoutCommand command);
+    //Task<IResult> HandleAsync(LogoutCommand command);
 
-    Task<IResult> ExecuteAsync(IResetPasswordCommand command);
+    //Task<IResult> HandleAsync(ResetPasswordCommand command);
 }

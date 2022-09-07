@@ -16,7 +16,7 @@ internal sealed class CommentCommandService : ICommentCommandService
         this.commentRepository = commentRepository;
     }
 
-    public async Task<IResult> ExecuteAsync(ICreateCommand command)
+    public async Task<IResult> HandleAsync(CreateCommand command)
     {
         if (string.IsNullOrWhiteSpace(command.Text))
         {

@@ -16,7 +16,7 @@ internal sealed class IssueCommandService : IIssueCommandService
         this.issueRepository = issueRepository;
     }
 
-    public async Task<IResult> ExecuteAsync(ICreateCommand command)
+    public async Task<IResult> HandleAsync(CreateCommand command)
     {
         var errors = new List<KeyValuePair<string, string>>();
 
@@ -74,7 +74,7 @@ internal sealed class IssueCommandService : IIssueCommandService
         return Result.Success();
     }
 
-    public async Task<IResult> ExecuteAsync(IUpdateCommand command)
+    public async Task<IResult> HandleAsync(UpdateCommand command)
     {
         var errors = new List<KeyValuePair<string, string>>();
 
@@ -134,7 +134,7 @@ internal sealed class IssueCommandService : IIssueCommandService
         return Result.Success();
     }
 
-    public async Task<IResult> ExecuteAsync(IDeleteCommand command)
+    public async Task<IResult> HandleAsync(DeleteCommand command)
     {
         var issue = await this.issueRepository
             .FindByIdAsync(command.Id);

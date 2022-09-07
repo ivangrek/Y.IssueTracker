@@ -1,8 +1,6 @@
 ﻿namespace Y.IssueTracker.Web.Models.Priority;
 
-using Priorities.Commands;
-
-public sealed class ActivatePriorityViewModel : IActivateCommand
+public sealed class ActivatePriorityViewModel
 {
     public Guid Id { get; set; }
 

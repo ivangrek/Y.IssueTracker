@@ -5,39 +5,101 @@ on:
     branches: [ main ]
 
 env:
+  AZURE_APIAPP_NAME: api-y-issue-tracker
   AZURE_WEBAPP_NAME: y-issue-tracker
-  DOTNET_VERSION: '6.0.x'
+  DOTNET_VERSION: '6.x.x'
 
 jobs:
-  publish:
+  build_api:
+    name: Build Api project
     runs-on: windows-latest
 
     steps:
-    # Checkout the repo
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
-    # Setup .NET Core SDK
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{env.DOTNET_VERSION}}
 
-    # Run dotnet build and publish
-    - name: Run dotnet build and publish
-      run: |
-        dotnet restore
-        dotnet build --configuration Release --no-restore
-        dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/webapp
+    - name: Run dotnet build
+      run: dotnet build ./src/Y.IssueTracker.Api/Y.IssueTracker.Api.csproj --configuration Release
 
-    # Run tests
+  build_web:
+    name: Build Web project
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{env.DOTNET_VERSION}}
+
+    - name: Run dotnet build
+      run: dotnet build ./src/Y.IssueTracker.Web/Y.IssueTracker.Web.csproj --configuration Release
+  
+  test:
+    name: Test solution
+    needs: [build_api, build_web]
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{env.DOTNET_VERSION}}
+
     - name: Run dotnet tests
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet test --verbosity normal
+  
+  deploy_api:
+    name: Deploy Api project
+    needs: test
+    runs-on: windows-latest
 
-    # Deploy to Azure Web apps
-    - name: 'Run Azure webapp deploy action using publish profile credentials'
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{env.DOTNET_VERSION}}
+
+    - name: Publish
+      run: dotnet publish ./src/Y.IssueTracker.Api/Y.IssueTracker.Api.csproj -c Release -o ${{env.DOTNET_ROOT}}/ApiApp
+      
+    - name: Deploy to Azure Api app
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{env.AZURE_APIAPP_NAME}}
+        slot-name: 'Production'
+        publish-profile: ${{secrets.AZURE_APIAPP_PUBLISH_PROFILE}}
+        package: '${{env.DOTNET_ROOT}}/ApiApp'
+
+  deploy_web:
+    name: Deploy Web project
+    needs: test
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{env.DOTNET_VERSION}}
+    
+    - name: Publish
+      run: dotnet publish ./src/Y.IssueTracker.Web/Y.IssueTracker.Web.csproj -c Release -o ${{env.DOTNET_ROOT}}/WebApp
+
+    - name: Deploy to Azure Web app
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{env.AZURE_WEBAPP_NAME}}
         slot-name: 'Production'
         publish-profile: ${{secrets.AZURE_WEBAPP_PUBLISH_PROFILE}}
-        package: '${{env.DOTNET_ROOT}}/webapp'
+        package: '${{env.DOTNET_ROOT}}/WebApp'

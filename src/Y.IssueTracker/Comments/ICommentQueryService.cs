@@ -1,8 +1,9 @@
 ﻿namespace Y.IssueTracker.Comments;
 
 using Results;
+using Y.IssueTracker.Comments.Queries;
 
 public interface ICommentQueryService
 {
-    Task<ICommentForViewResult[]> QueryCommentsForViewAsync(Guid issueId);
+    Task<CommentForViewResult[]> HandleAsync(GetCommentsForViewQuery query);
 }

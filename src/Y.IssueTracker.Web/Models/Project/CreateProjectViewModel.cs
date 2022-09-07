@@ -1,8 +1,6 @@
 ﻿namespace Y.IssueTracker.Web.Models.Project;
 
-using Projects.Commands;
-
-public sealed class CreateProjectViewModel : ICreateCommand
+public sealed class CreateProjectViewModel
 {
-    public string Name { get; set; }
+    public string Name { get; init; }
 }

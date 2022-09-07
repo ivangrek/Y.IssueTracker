@@ -1,32 +1,42 @@
 ﻿namespace Y.IssueTracker.Web.Controllers;
 
-using Categories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Models.Category;
+using Y.IssueTracker.Web.Models.Category;
+using Y.IssueTracker.Categories.Commands;
+using Y.IssueTracker.Categories.Queries;
+using Y.IssueTracker.Web.Services;
 using Y.IssueTracker.Web.Infrastructure;
 
 [Authorize(Roles = "Administrator,Manager")]
 public sealed class CategoryController : Controller
 {
-    private readonly ICategoryCommandService categoryCommandService;
-    private readonly ICategoryQueryService categoryQueryService;
+    private readonly ICategoryService categoryService;
 
     public CategoryController(
-        ICategoryCommandService categoryCommandService,
-        ICategoryQueryService categoryQueryService)
+        ICategoryService categoryService)
     {
-        this.categoryCommandService = categoryCommandService;
-        this.categoryQueryService = categoryQueryService;
+        this.categoryService = categoryService;
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> IndexAsync(int? page, int? pageCount)
     {
-        var categories = await this.categoryQueryService
-            .QueryAllAsync();
+        if (page < 1 || pageCount < 1)
+        {
+            return NotFound();
+        }
 
-        return View(categories);
+        var query = new GetAllQuery
+        {
+            Page = page ?? 1,
+            PageCount = pageCount ?? int.MaxValue
+        };
+
+        var result = await this.categoryService
+            .HandleAsync(query);
+
+        return View(result);
     }
 
     [HttpGet]
@@ -39,10 +49,15 @@ public sealed class CategoryController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(CreateCategoryViewModel viewModel)
+    public async Task<IActionResult> CreateAsync(CreateCategoryViewModel viewModel)
     {
-        var result = await this.categoryCommandService
-            .ExecuteAsync(viewModel);
+        var command = new CreateCommand
+        {
+            Name = viewModel.Name
+        };
+
+        var result = await this.categoryService
+            .HandleAsync(command);
 
         if (result.Status is ResultStatus.Success)
         {
@@ -56,23 +71,28 @@ public sealed class CategoryController : Controller
             return View(viewModel);
         }
 
-        return BadRequest();
+        return StatusCode(StatusCodes.Status500InternalServerError);
     }
 
     [HttpGet]
-    public async Task<IActionResult> Update(Guid id)
+    public async Task<IActionResult> UpdateAsync(Guid id)
     {
-        var category = await this.categoryQueryService
-            .QueryByIdAsync(id);
-
-        if (category is null || !category.IsActive)
+        var query = new GetByIdQuery
         {
-            return BadRequest();
+            Id = id
+        };
+
+        var result = await this.categoryService
+            .HandleAsync(query);
+
+        if (result is null || !result.IsActive)
+        {
+            return NotFound();
         }
 
         var viewModel = new UpdateCategoryViewModel
         {
-            Name = category.Name
+            Name = result.Name
         };
 
         return View(viewModel);
@@ -80,10 +100,16 @@ public sealed class CategoryController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Update(UpdateCategoryViewModel viewModel)
+    public async Task<IActionResult> UpdateAsync(UpdateCategoryViewModel viewModel)
     {
-        var result = await this.categoryCommandService
-            .ExecuteAsync(viewModel);
+        var command = new UpdateCommand
+        {
+            Id = viewModel.Id,
+            Name = viewModel.Name
+        };
+
+        var result = await this.categoryService
+            .HandleAsync(command);
 
         if (result.Status is ResultStatus.Success)
         {
@@ -97,109 +123,29 @@ public sealed class CategoryController : Controller
             return View(viewModel);
         }
 
-        return BadRequest();
+        return StatusCode(StatusCodes.Status500InternalServerError);
     }
 
     [HttpGet]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> ActivateAsync(Guid id)
     {
-        var category = await this.categoryQueryService
-            .QueryByIdAsync(id);
-
-        if (category is null)
+        var query = new GetByIdQuery
         {
-            return BadRequest();
-        }
-
-        var viewModel = new DeleteCategoryViewModel
-        {
-            Id = category.Id,
-            Name = category.Name
+            Id = id
         };
 
-        return View(viewModel);
-    }
+        var result = await this.categoryService
+            .HandleAsync(query);
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Administrator")]
-    public async Task<IActionResult> Delete(DeleteCategoryViewModel viewModel)
-    {
-        var result = await this.categoryCommandService
-            .ExecuteAsync(viewModel);
-
-        if (result.Status is ResultStatus.Success)
+        if (result is null || result.IsActive)
         {
-            return RedirectToAction(nameof(Index));
-        }
-
-        if (result.Status is ResultStatus.Invalid)
-        {
-            ModelState.AddModelErrors(result.Errors);
-
-            return View(viewModel);
-        }
-
-        return BadRequest();
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Deactivate(Guid id)
-    {
-        var category = await this.categoryQueryService
-            .QueryByIdAsync(id);
-
-        if (category is null || !category.IsActive)
-        {
-            return BadRequest();
-        }
-
-        var viewModel = new DeactivateCategoryViewModel
-        {
-            Id = category.Id,
-            Name = category.Name
-        };
-
-        return View(viewModel);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Deactivate(DeactivateCategoryViewModel viewModel)
-    {
-        var result = await this.categoryCommandService
-            .ExecuteAsync(viewModel);
-
-        if (result.Status is ResultStatus.Success)
-        {
-            return RedirectToAction(nameof(Index));
-        }
-
-        if (result.Status is ResultStatus.Invalid)
-        {
-            ModelState.AddModelErrors(result.Errors);
-
-            return View(viewModel);
-        }
-
-        return BadRequest();
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Activate(Guid id)
-    {
-        var category = await this.categoryQueryService
-            .QueryByIdAsync(id);
-
-        if (category is null || category.IsActive)
-        {
-            return BadRequest();
+            return NotFound();
         }
 
         var viewModel = new ActivateCategoryViewModel
         {
-            Id = category.Id,
-            Name = category.Name
+            Id = result.Id,
+            Name = result.Name
         };
 
         return View(viewModel);
@@ -207,11 +153,15 @@ public sealed class CategoryController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Administrator")]
-    public async Task<IActionResult> Activate(ActivateCategoryViewModel viewModel)
+    public async Task<IActionResult> ActivateAsync(ActivateCategoryViewModel viewModel)
     {
-        var result = await this.categoryCommandService
-            .ExecuteAsync(viewModel);
+        var command = new ActivateCommand
+        {
+            Id = viewModel.Id
+        };
+
+        var result = await this.categoryService
+            .HandleAsync(command);
 
         if (result.Status is ResultStatus.Success)
         {
@@ -225,6 +175,112 @@ public sealed class CategoryController : Controller
             return View(viewModel);
         }
 
-        return BadRequest();
+        return StatusCode(StatusCodes.Status500InternalServerError);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> DeactivateAsync(Guid id)
+    {
+        var query = new GetByIdQuery
+        {
+            Id = id
+        };
+
+        var result = await this.categoryService
+            .HandleAsync(query);
+
+        if (result is null || !result.IsActive)
+        {
+            return NotFound();
+        }
+
+        var viewModel = new DeactivateCategoryViewModel
+        {
+            Id = result.Id,
+            Name = result.Name
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeactivateAsync(DeactivateCategoryViewModel viewModel)
+    {
+        var command = new DeactivateCommand
+        {
+            Id = viewModel.Id
+        };
+
+        var result = await this.categoryService
+            .HandleAsync(command);
+
+        if (result.Status is ResultStatus.Success)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (result.Status is ResultStatus.Invalid)
+        {
+            ModelState.AddModelErrors(result.Errors);
+
+            return View(viewModel);
+        }
+
+        return StatusCode(StatusCodes.Status500InternalServerError);
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Administrator")]
+    public async Task<IActionResult> DeleteAsync(Guid id)
+    {
+        var query = new GetByIdQuery
+        {
+            Id = id
+        };
+
+        var result = await this.categoryService
+            .HandleAsync(query);
+
+        if (result is null)
+        {
+            return NotFound();
+        }
+
+        var viewModel = new DeleteCategoryViewModel
+        {
+            Id = result.Id,
+            Name = result.Name
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Administrator")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteAsync(DeleteCategoryViewModel viewModel)
+    {
+        var command = new DeleteCommand
+        {
+            Id = viewModel.Id
+        };
+
+        var result = await this.categoryService
+            .HandleAsync(command);
+
+        if (result.Status is ResultStatus.Success)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (result.Status is ResultStatus.Invalid)
+        {
+            ModelState.AddModelErrors(result.Errors);
+
+            return View(viewModel);
+        }
+
+        return StatusCode(StatusCodes.Status500InternalServerError);
     }
 }

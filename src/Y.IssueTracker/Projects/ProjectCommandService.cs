@@ -16,13 +16,13 @@ internal sealed class ProjectCommandService : IProjectCommandService
         this.projectRepository = projectRepository;
     }
 
-    public async Task<IResult> ExecuteAsync(ICreateCommand command)
+    public async Task<IResult> HandleAsync(CreateCommand command)
     {
         if (string.IsNullOrWhiteSpace(command.Name))
         {
             return Result.Invalid()
-               .WithError(nameof(command.Name), $"{nameof(command.Name)} is required.")
-               .Build();
+                .WithError(nameof(command.Name), $"{nameof(command.Name)} is required.")
+                .Build();
         }
 
         var project = new Project(Guid.NewGuid())
@@ -40,13 +40,13 @@ internal sealed class ProjectCommandService : IProjectCommandService
         return Result.Success();
     }
 
-    public async Task<IResult> ExecuteAsync(IUpdateCommand command)
+    public async Task<IResult> HandleAsync(UpdateCommand command)
     {
         if (string.IsNullOrWhiteSpace(command.Name))
         {
             return Result.Invalid()
-               .WithError(nameof(command.Name), $"{nameof(command.Name)} is required.")
-               .Build();
+                .WithError(nameof(command.Name), $"{nameof(command.Name)} is required.")
+                .Build();
         }
 
         var project = await this.projectRepository
@@ -55,15 +55,15 @@ internal sealed class ProjectCommandService : IProjectCommandService
         if (project is null)
         {
             return Result.Failure()
-               .WithError("Not exist.")
-               .Build();
+                .WithError("Not exist.")
+                .Build();
         }
 
         if (!project.IsActive)
         {
             return Result.Failure()
-               .WithError("Invalid operation.")
-               .Build();
+                .WithError("Invalid operation.")
+                .Build();
         }
 
         project.Name = command.Name;
@@ -74,7 +74,7 @@ internal sealed class ProjectCommandService : IProjectCommandService
         return Result.Success();
     }
 
-    public async Task<IResult> ExecuteAsync(IDeleteCommand command)
+    public async Task<IResult> HandleAsync(DeleteCommand command)
     {
         var project = await this.projectRepository
             .FindByIdAsync(command.Id);
@@ -95,34 +95,7 @@ internal sealed class ProjectCommandService : IProjectCommandService
         return Result.Success();
     }
 
-    public async Task<IResult> ExecuteAsync(IDeactivateCommand command)
-    {
-        var project = await this.projectRepository
-            .FindByIdAsync(command.Id);
-
-        if (project is null)
-        {
-            return Result.Failure()
-                .WithError("Not exist.")
-                .Build();
-        }
-
-        if (!project.IsActive)
-        {
-            return Result.Failure()
-                .WithError("Invalid operation.")
-                .Build();
-        }
-
-        project.IsActive = false;
-
-        await this.unitOfWork
-            .CommitAsync();
-
-        return Result.Success();
-    }
-
-    public async Task<IResult> ExecuteAsync(IActivateCommand command)
+    public async Task<IResult> HandleAsync(ActivateCommand command)
     {
         var project = await this.projectRepository
             .FindByIdAsync(command.Id);
@@ -142,6 +115,33 @@ internal sealed class ProjectCommandService : IProjectCommandService
         }
 
         project.IsActive = true;
+
+        await this.unitOfWork
+            .CommitAsync();
+
+        return Result.Success();
+    }
+
+    public async Task<IResult> HandleAsync(DeactivateCommand command)
+    {
+        var project = await this.projectRepository
+            .FindByIdAsync(command.Id);
+
+        if (project is null)
+        {
+            return Result.Failure()
+                .WithError("Not exist.")
+                .Build();
+        }
+
+        if (!project.IsActive)
+        {
+            return Result.Failure()
+                .WithError("Invalid operation.")
+                .Build();
+        }
+
+        project.IsActive = false;
 
         await this.unitOfWork
             .CommitAsync();

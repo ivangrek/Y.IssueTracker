@@ -5,5 +5,5 @@ using Commands;
 
 public interface ICommentCommandService
 {
-    Task<IResult> ExecuteAsync(ICreateCommand command);
+    Task<IResult> HandleAsync(CreateCommand command);
 }

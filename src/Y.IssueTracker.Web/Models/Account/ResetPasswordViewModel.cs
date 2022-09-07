@@ -1,8 +1,5 @@
 ﻿namespace Y.IssueTracker.Web.Models.Account;
-
-using Y.IssueTracker.Users.Commands;
-
-public sealed class ResetPasswordViewModel : IResetPasswordCommand
+public sealed class ResetPasswordViewModel
 {
-    public string Email { get; set; }
+    public string Email { get; init; }
 }

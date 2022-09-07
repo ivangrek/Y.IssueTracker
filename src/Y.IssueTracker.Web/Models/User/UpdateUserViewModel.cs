@@ -1,13 +1,12 @@
 ﻿namespace Y.IssueTracker.Web.Models.User;
 
-using Users.Commands;
 using Users.Domain;
 
-public sealed class UpdateUserViewModel : IUpdateCommand
+public sealed class UpdateUserViewModel
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 
-    public string Name { get; set; }
+    public string Name { get; init; }
 
-    public Role Role { get; set; }
+    public Role Role { get; init; }
 }

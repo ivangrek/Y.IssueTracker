@@ -1,14 +1,15 @@
 ﻿namespace Y.IssueTracker.Users;
 
 using Results;
+using Y.IssueTracker.Users.Queries;
 
 public interface IUserQueryService
 {
-    Task<IUserResult[]> QueryAllAsync();
+    Task<UserResult[]> HandleAsync(GetAllQuery query);
 
-    Task<IUserResult> QueryByIdAsync(Guid id);
+    Task<UserResult> HandleAsync(GetByIdQuery query);
 
-    Task<IUserResult> QueryByCredentialsAsync(string email, string password);
+    Task<UserResult> QueryByCredentialsAsync(string email, string password);
 
     Task<bool> QueryCheckUserExistsAsync(string email);
 }

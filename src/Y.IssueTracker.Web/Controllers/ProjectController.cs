@@ -3,30 +3,40 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Project;
-using Projects;
+using Y.IssueTracker.Projects.Commands;
+using Y.IssueTracker.Projects.Queries;
 using Y.IssueTracker.Web.Infrastructure;
+using Y.IssueTracker.Web.Services;
 
 [Authorize(Roles = "Administrator,Manager")]
 public sealed class ProjectController : Controller
 {
-    private readonly IProjectCommandService projectCommandService;
-    private readonly IProjectQueryService projectQueryService;
+    private readonly IProjectService projectService;
 
     public ProjectController(
-        IProjectCommandService projectCommandService,
-        IProjectQueryService projectQueryService)
+        IProjectService projectService)
     {
-        this.projectCommandService = projectCommandService;
-        this.projectQueryService = projectQueryService;
+        this.projectService = projectService;
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> IndexAsync(int? page, int? pageCount)
     {
-        var projects = await this.projectQueryService
-            .QueryAllAsync();
+        if (page < 1 || pageCount < 1)
+        {
+            return NotFound();
+        }
 
-        return View(projects);
+        var query = new GetAllQuery
+        {
+            Page = page ?? 1,
+            PageCount = pageCount ?? int.MaxValue
+        };
+
+        var result = await this.projectService
+            .HandleAsync(query);
+
+        return View(result);
     }
 
     [HttpGet]
@@ -39,10 +49,15 @@ public sealed class ProjectController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(CreateProjectViewModel viewModel)
+    public async Task<IActionResult> CreateAsync(CreateProjectViewModel viewModel)
     {
-        var result = await this.projectCommandService
-            .ExecuteAsync(viewModel);
+        var command = new CreateCommand
+        {
+            Name = viewModel.Name
+        };
+
+        var result = await this.projectService
+            .HandleAsync(command);
 
         if (result.Status is ResultStatus.Success)
         {
@@ -56,23 +71,28 @@ public sealed class ProjectController : Controller
             return View(viewModel);
         }
 
-        return BadRequest();
+        return StatusCode(StatusCodes.Status500InternalServerError);
     }
 
     [HttpGet]
-    public async Task<IActionResult> Update(Guid id)
+    public async Task<IActionResult> UpdateAsync(Guid id)
     {
-        var project = await this.projectQueryService
-            .QueryByIdAsync(id);
-
-        if (project is null || !project.IsActive)
+        var query = new GetByIdQuery
         {
-            return BadRequest();
+            Id = id
+        };
+
+        var result = await this.projectService
+            .HandleAsync(query);
+
+        if (result is null || !result.IsActive)
+        {
+            return NotFound();
         }
 
         var viewModel = new UpdateProjectViewModel
         {
-            Name = project.Name
+            Name = result.Name
         };
 
         return View(viewModel);
@@ -80,10 +100,16 @@ public sealed class ProjectController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Update(UpdateProjectViewModel viewModel)
+    public async Task<IActionResult> UpdateAsync(UpdateProjectViewModel viewModel)
     {
-        var result = await this.projectCommandService
-            .ExecuteAsync(viewModel);
+        var command = new UpdateCommand
+        {
+            Id = viewModel.Id,
+            Name = viewModel.Name
+        };
+
+        var result = await this.projectService
+            .HandleAsync(command);
 
         if (result.Status is ResultStatus.Success)
         {
@@ -97,110 +123,29 @@ public sealed class ProjectController : Controller
             return View(viewModel);
         }
 
-        return BadRequest();
+        return StatusCode(StatusCodes.Status500InternalServerError);
     }
 
     [HttpGet]
-    [Authorize(Roles = "Administrator")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> ActivateAsync(Guid id)
     {
-        var project = await this.projectQueryService
-            .QueryByIdAsync(id);
-
-        if (project is null)
+        var query = new GetByIdQuery
         {
-            return BadRequest();
-        }
-
-        var viewModel = new DeleteProjectViewModel
-        {
-            Id = project.Id,
-            Name = project.Name
+            Id = id
         };
 
-        return View(viewModel);
-    }
+        var result = await this.projectService
+            .HandleAsync(query);
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Administrator")]
-    public async Task<IActionResult> Delete(DeleteProjectViewModel viewModel)
-    {
-        var result = await this.projectCommandService
-            .ExecuteAsync(viewModel);
-
-        if (result.Status is ResultStatus.Success)
+        if (result is null || result.IsActive)
         {
-            return RedirectToAction(nameof(Index));
-        }
-
-        if (result.Status is ResultStatus.Invalid)
-        {
-            ModelState.AddModelErrors(result.Errors);
-
-            return View(viewModel);
-        }
-
-        return BadRequest();
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Deactivate(Guid id)
-    {
-        var project = await this.projectQueryService
-            .QueryByIdAsync(id);
-
-        if (project is null || !project.IsActive)
-        {
-            return BadRequest();
-        }
-
-        var viewModel = new DeactivateProjectViewModel
-        {
-            Id = project.Id,
-            Name = project.Name
-        };
-
-        return View(viewModel);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Deactivate(DeactivateProjectViewModel viewModel)
-    {
-        var result = await this.projectCommandService
-            .ExecuteAsync(viewModel);
-
-        if (result.Status is ResultStatus.Success)
-        {
-            return RedirectToAction(nameof(Index));
-        }
-
-        if (result.Status is ResultStatus.Invalid)
-        {
-            ModelState.AddModelErrors(result.Errors);
-
-            return View(viewModel);
-        }
-
-        return BadRequest();
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Activate(Guid id)
-    {
-        var project = await this.projectQueryService
-            .QueryByIdAsync(id);
-
-        if (project is null || project.IsActive)
-        {
-            return BadRequest();
+            return NotFound();
         }
 
         var viewModel = new ActivateProjectViewModel
         {
-            Id = project.Id,
-            Name = project.Name
+            Id = result.Id,
+            Name = result.Name
         };
 
         return View(viewModel);
@@ -208,10 +153,15 @@ public sealed class ProjectController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Activate(ActivateProjectViewModel viewModel)
+    public async Task<IActionResult> ActivateAsync(ActivateProjectViewModel viewModel)
     {
-        var result = await this.projectCommandService
-            .ExecuteAsync(viewModel);
+        var command = new ActivateCommand
+        {
+            Id = viewModel.Id
+        };
+
+        var result = await this.projectService
+            .HandleAsync(command);
 
         if (result.Status is ResultStatus.Success)
         {
@@ -225,6 +175,112 @@ public sealed class ProjectController : Controller
             return View(viewModel);
         }
 
-        return BadRequest();
+        return StatusCode(StatusCodes.Status500InternalServerError);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> DeactivateAsync(Guid id)
+    {
+        var query = new GetByIdQuery
+        {
+            Id = id
+        };
+
+        var result = await this.projectService
+            .HandleAsync(query);
+
+        if (result is null || !result.IsActive)
+        {
+            return NotFound();
+        }
+
+        var viewModel = new DeactivateProjectViewModel
+        {
+            Id = result.Id,
+            Name = result.Name
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeactivateAsync(DeactivateProjectViewModel viewModel)
+    {
+        var command = new DeactivateCommand
+        {
+            Id = viewModel.Id
+        };
+
+        var result = await this.projectService
+            .HandleAsync(command);
+
+        if (result.Status is ResultStatus.Success)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (result.Status is ResultStatus.Invalid)
+        {
+            ModelState.AddModelErrors(result.Errors);
+
+            return View(viewModel);
+        }
+
+        return StatusCode(StatusCodes.Status500InternalServerError);
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Administrator")]
+    public async Task<IActionResult> DeleteAsync(Guid id)
+    {
+        var query = new GetByIdQuery
+        {
+            Id = id
+        };
+
+        var result = await this.projectService
+            .HandleAsync(query);
+
+        if (result is null)
+        {
+            return NotFound();
+        }
+
+        var viewModel = new DeleteProjectViewModel
+        {
+            Id = result.Id,
+            Name = result.Name
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Administrator")]
+    public async Task<IActionResult> DeleteAsync(DeleteProjectViewModel viewModel)
+    {
+        var command = new DeleteCommand
+        {
+            Id = viewModel.Id
+        };
+
+        var result = await this.projectService
+            .HandleAsync(command);
+
+        if (result.Status is ResultStatus.Success)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (result.Status is ResultStatus.Invalid)
+        {
+            ModelState.AddModelErrors(result.Errors);
+
+            return View(viewModel);
+        }
+
+        return StatusCode(StatusCodes.Status500InternalServerError);
     }
 }

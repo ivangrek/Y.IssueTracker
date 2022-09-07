@@ -5,39 +5,37 @@ using Microsoft.AspNetCore.Mvc;
 using Models.Project;
 using Moq;
 using NUnit.Framework;
-using Projects;
 using Projects.Commands;
 using Projects.Results;
+using Y.IssueTracker.Projects.Queries;
+using Y.IssueTracker.Web.Services;
 
 internal sealed class ProjectControllerTests
 {
     private ProjectController projectController;
 
-    private Mock<IProjectCommandService> projectCommandServiceMock;
-    private Mock<IProjectQueryService> projectQueryServiceMock;
+    private Mock<IProjectService> projectServiceMock;
 
     [SetUp]
     public void Setup()
     {
-        this.projectCommandServiceMock = new Mock<IProjectCommandService>();
-        this.projectQueryServiceMock = new Mock<IProjectQueryService>();
+        this.projectServiceMock = new Mock<IProjectService>();
 
         this.projectController = new ProjectController(
-            this.projectCommandServiceMock.Object,
-            this.projectQueryServiceMock.Object);
+            this.projectServiceMock.Object);
     }
 
     [Test]
     public async Task Index_method_should_return_view_result()
     {
         // Arrange
-        this.projectQueryServiceMock
-            .Setup(x => x.QueryAllAsync())
-            .Returns(Task.FromResult(Array.Empty<IProjectResult>()));
+        this.projectServiceMock
+            .Setup(x => x.HandleAsync(It.IsAny<GetAllQuery>()))
+            .Returns(Task.FromResult(Array.Empty<ProjectResult>()));
 
         // Act
         var result = await this.projectController
-            .Index();
+            .IndexAsync(1, 10);
 
         // Assert
         Assert.That(result, Is.TypeOf<ViewResult>());
@@ -65,15 +63,15 @@ internal sealed class ProjectControllerTests
             .SetupGet(x => x.Status)
             .Returns(ResultStatus.Success);
 
-        this.projectCommandServiceMock
-            .Setup(x => x.ExecuteAsync(It.IsAny<ICreateCommand>()))
+        this.projectServiceMock
+            .Setup(x => x.HandleAsync(It.IsAny<CreateCommand>()))
             .Returns(Task.FromResult(successResultMock.Object));
 
         var viewModel = new CreateProjectViewModel();
 
         // Act
         var result = await this.projectController
-            .Create(viewModel);
+            .CreateAsync(viewModel);
 
         // Assert
         Assert.That(result, Is.TypeOf<RedirectToActionResult>());
@@ -89,15 +87,15 @@ internal sealed class ProjectControllerTests
             .SetupGet(x => x.Status)
             .Returns(ResultStatus.Invalid);
 
-        this.projectCommandServiceMock
-            .Setup(x => x.ExecuteAsync(It.IsAny<ICreateCommand>()))
+        this.projectServiceMock
+            .Setup(x => x.HandleAsync(It.IsAny<CreateCommand>()))
             .Returns(Task.FromResult(invalidResultMock.Object));
 
         var viewModel = new CreateProjectViewModel();
 
         // Act
         var result = await this.projectController
-            .Create(viewModel);
+            .CreateAsync(viewModel);
 
         // Assert
         Assert.That(result, Is.TypeOf<ViewResult>());
@@ -113,17 +111,18 @@ internal sealed class ProjectControllerTests
             .SetupGet(x => x.Status)
             .Returns(ResultStatus.Failure);
 
-        this.projectCommandServiceMock
-            .Setup(x => x.ExecuteAsync(It.IsAny<ICreateCommand>()))
+        this.projectServiceMock
+            .Setup(x => x.HandleAsync(It.IsAny<CreateCommand>()))
             .Returns(Task.FromResult(failureResultMock.Object));
 
         var viewModel = new CreateProjectViewModel();
 
         // Act
         var result = await this.projectController
-            .Create(viewModel);
+            .CreateAsync(viewModel);
 
         // Assert
-        Assert.That(result, Is.TypeOf<BadRequestResult>());
+        Assert.That(result, Is.TypeOf<StatusCodeResult>());
+        Assert.That(((StatusCodeResult)result).StatusCode, Is.EqualTo(Microsoft.AspNetCore.Http.StatusCodes.Status500InternalServerError));
     }
 }

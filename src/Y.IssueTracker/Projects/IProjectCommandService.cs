@@ -5,13 +5,13 @@ using Commands;
 
 public interface IProjectCommandService
 {
-    Task<IResult> ExecuteAsync(ICreateCommand command);
+    Task<IResult> HandleAsync(CreateCommand command);
 
-    Task<IResult> ExecuteAsync(IUpdateCommand command);
+    Task<IResult> HandleAsync(UpdateCommand command);
 
-    Task<IResult> ExecuteAsync(IDeleteCommand command);
+    Task<IResult> HandleAsync(DeleteCommand command);
 
-    Task<IResult> ExecuteAsync(IDeactivateCommand command);
+    Task<IResult> HandleAsync(ActivateCommand command);
 
-    Task<IResult> ExecuteAsync(IActivateCommand command);
+    Task<IResult> HandleAsync(DeactivateCommand command);
 }

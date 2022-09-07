@@ -3,40 +3,55 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.User;
-using Users;
+using Y.IssueTracker.Users.Commands;
+using Y.IssueTracker.Users.Queries;
 using Y.IssueTracker.Web.Infrastructure;
+using Y.IssueTracker.Web.Services;
 
 [Authorize]
 public sealed class UserController : Controller
 {
-    private readonly IUserCommandService userCommandService;
-    private readonly IUserQueryService userQueryService;
+    private readonly IUserService userService;
 
     public UserController(
-        IUserCommandService userCommandService,
-        IUserQueryService userQueryService)
+        IUserService userService)
     {
-        this.userCommandService = userCommandService;
-        this.userQueryService = userQueryService;
+        this.userService = userService;
     }
 
     [HttpGet]
     [Authorize(Roles = "Administrator,Manager")]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> IndexAsync(int? page, int? pageCount)
     {
-        var users = await this.userQueryService
-            .QueryAllAsync();
+        if (page < 1 || pageCount < 1)
+        {
+            return NotFound();
+        }
 
-        return View(users);
+        var query = new GetAllQuery
+        {
+            Page = page ?? 1,
+            PageCount = pageCount ?? int.MaxValue
+        };
+
+        var result = await this.userService
+            .HandleAsync(query);
+
+        return View(result);
     }
 
     [HttpGet]
-    public async Task<IActionResult> View(Guid id)
+    public async Task<IActionResult> ViewAsync(Guid id)
     {
-        var user = await this.userQueryService
-            .QueryByIdAsync(id);
+        var query = new GetByIdQuery
+        {
+            Id = id
+        };
 
-        return View(user);
+        var result = await this.userService
+            .HandleAsync(query);
+
+        return View(result);
     }
 
     [HttpGet]
@@ -51,10 +66,16 @@ public sealed class UserController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "Administrator")]
-    public async Task<IActionResult> Create(CreateUserViewModel viewModel)
+    public async Task<IActionResult> CreateAsync(CreateUserViewModel viewModel)
     {
-        var result = await this.userCommandService
-            .ExecuteAsync(viewModel);
+        var command = new CreateCommand
+        {
+            Name = viewModel.Name,
+            Role = viewModel.Role
+        };
+
+        var result = await this.userService
+            .HandleAsync(command);
 
         if (result.Status is ResultStatus.Success)
         {
@@ -68,25 +89,30 @@ public sealed class UserController : Controller
             return View(viewModel);
         }
 
-        return BadRequest();
+        return StatusCode(StatusCodes.Status500InternalServerError);
     }
 
     [HttpGet]
     [Authorize(Roles = "Administrator")]
-    public async Task<IActionResult> Update(Guid id)
+    public async Task<IActionResult> UpdateAsync(Guid id)
     {
-        var user = await this.userQueryService
-            .QueryByIdAsync(id);
-
-        if (user is null || !user.IsActive)
+        var query = new GetByIdQuery
         {
-            return BadRequest();
+            Id = id
+        };
+
+        var result = await this.userService
+            .HandleAsync(query);
+
+        if (result is null || !result.IsActive)
+        {
+            return NotFound();
         }
 
         var viewModel = new UpdateUserViewModel
         {
-            Name = user.Name,
-            Role = user.Role
+            Name = result.Name,
+            Role = result.Role
         };
 
         return View(viewModel);
@@ -95,10 +121,17 @@ public sealed class UserController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "Administrator")]
-    public async Task<IActionResult> Update(UpdateUserViewModel viewModel)
+    public async Task<IActionResult> UpdateAsync(UpdateUserViewModel viewModel)
     {
-        var result = await this.userCommandService
-            .ExecuteAsync(viewModel);
+        var command = new UpdateCommand
+        {
+            Id = viewModel.Id,
+            Name = viewModel.Name,
+            Role = viewModel.Role
+        };
+
+        var result = await this.userService
+            .HandleAsync(command);
 
         if (result.Status is ResultStatus.Success)
         {
@@ -112,113 +145,30 @@ public sealed class UserController : Controller
             return View(viewModel);
         }
 
-        return BadRequest();
+        return StatusCode(StatusCodes.Status500InternalServerError);
     }
 
     [HttpGet]
-    [Authorize(Roles = "Administrator")]
-    public async Task<IActionResult> Delete(Guid id)
+    [Authorize(Roles = "Administrator,Manager")]
+    public async Task<IActionResult> ActivateAsync(Guid id)
     {
-        var user = await this.userQueryService
-            .QueryByIdAsync(id);
-
-        if (user is null || user.IsDefault)
+        var query = new GetByIdQuery
         {
-            return BadRequest();
-        }
-
-        var viewModel = new DeleteUserViewModel
-        {
-            Id = user.Id,
-            Name = user.Name
+            Id = id
         };
 
-        return View(viewModel);
-    }
+        var result = await this.userService
+            .HandleAsync(query);
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Administrator")]
-    public async Task<IActionResult> Delete(DeleteUserViewModel viewModel)
-    {
-        var result = await this.userCommandService
-            .ExecuteAsync(viewModel);
-
-        if (result.Status is ResultStatus.Success)
+        if (result is null || result.IsActive || result.IsDefault)
         {
-            return RedirectToAction(nameof(Index));
-        }
-
-        if (result.Status is ResultStatus.Invalid)
-        {
-            ModelState.AddModelErrors(result.Errors);
-
-            return View(viewModel);
-        }
-
-        return BadRequest();
-    }
-
-    [HttpGet]
-    [Authorize(Roles = "Administrator,Manager")]
-    public async Task<IActionResult> Deactivate(Guid id)
-    {
-        var user = await this.userQueryService
-            .QueryByIdAsync(id);
-
-        if (user is null || !user.IsActive || user.IsDefault)
-        {
-            return BadRequest();
-        }
-
-        var viewModel = new DeactivateUserViewModel
-        {
-            Id = user.Id,
-            Name = user.Name
-        };
-
-        return View(viewModel);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Administrator,Manager")]
-    public async Task<IActionResult> Deactivate(DeactivateUserViewModel viewModel)
-    {
-        var result = await this.userCommandService
-            .ExecuteAsync(viewModel);
-
-        if (result.Status is ResultStatus.Success)
-        {
-            return RedirectToAction(nameof(Index));
-        }
-
-        if (result.Status is ResultStatus.Invalid)
-        {
-            ModelState.AddModelErrors(result.Errors);
-
-            return View(viewModel);
-        }
-
-        return BadRequest();
-    }
-
-    [HttpGet]
-    [Authorize(Roles = "Administrator,Manager")]
-    public async Task<IActionResult> Activate(Guid id)
-    {
-        var user = await this.userQueryService
-            .QueryByIdAsync(id);
-
-        if (user is null || user.IsActive || user.IsDefault)
-        {
-            return BadRequest();
+            return NotFound();
         }
 
         var viewModel = new ActivateUserViewModel
         {
-            Id = user.Id,
-            Name = user.Name
+            Id = result.Id,
+            Name = result.Name
         };
 
         return View(viewModel);
@@ -227,10 +177,15 @@ public sealed class UserController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "Administrator,Manager")]
-    public async Task<IActionResult> Activate(ActivateUserViewModel viewModel)
+    public async Task<IActionResult> ActivateAsync(ActivateUserViewModel viewModel)
     {
-        var result = await this.userCommandService
-            .ExecuteAsync(viewModel);
+        var command = new ActivateCommand
+        {
+            Id = viewModel.Id
+        };
+
+        var result = await this.userService
+            .HandleAsync(command);
 
         if (result.Status is ResultStatus.Success)
         {
@@ -244,6 +199,114 @@ public sealed class UserController : Controller
             return View(viewModel);
         }
 
-        return BadRequest();
+        return StatusCode(StatusCodes.Status500InternalServerError);
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Administrator,Manager")]
+    public async Task<IActionResult> DeactivateAsync(Guid id)
+    {
+        var query = new GetByIdQuery
+        {
+            Id = id
+        };
+
+        var result = await this.userService
+            .HandleAsync(query);
+
+        if (result is null || !result.IsActive || result.IsDefault)
+        {
+            return NotFound();
+        }
+
+        var viewModel = new DeactivateUserViewModel
+        {
+            Id = result.Id,
+            Name = result.Name
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Administrator,Manager")]
+    public async Task<IActionResult> DeactivateAsync(DeactivateUserViewModel viewModel)
+    {
+        var command = new DeactivateCommand
+        {
+            Id = viewModel.Id
+        };
+
+        var result = await this.userService
+            .HandleAsync(command);
+
+        if (result.Status is ResultStatus.Success)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (result.Status is ResultStatus.Invalid)
+        {
+            ModelState.AddModelErrors(result.Errors);
+
+            return View(viewModel);
+        }
+
+        return StatusCode(StatusCodes.Status500InternalServerError);
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Administrator")]
+    public async Task<IActionResult> DeleteAsync(Guid id)
+    {
+        var query = new GetByIdQuery
+        {
+            Id = id
+        };
+
+        var result = await this.userService
+            .HandleAsync(query);
+
+        if (result is null || result.IsDefault)
+        {
+            return NotFound();
+        }
+
+        var viewModel = new DeleteUserViewModel
+        {
+            Id = result.Id,
+            Name = result.Name
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Administrator")]
+    public async Task<IActionResult> DeleteAsync(DeleteUserViewModel viewModel)
+    {
+        var command = new DeleteCommand
+        {
+            Id = viewModel.Id
+        };
+
+        var result = await this.userService
+            .HandleAsync(command);
+
+        if (result.Status is ResultStatus.Success)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (result.Status is ResultStatus.Invalid)
+        {
+            ModelState.AddModelErrors(result.Errors);
+
+            return View(viewModel);
+        }
+
+        return StatusCode(StatusCodes.Status500InternalServerError);
     }
 }

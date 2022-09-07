@@ -1,10 +1,8 @@
 ﻿namespace Y.IssueTracker.Web.Models.Priority;
 
-using Priorities.Commands;
-
-public sealed class CreatePriorityViewModel : ICreateCommand
+public sealed class CreatePriorityViewModel
 {
-    public string Name { get; set; }
+    public string Name { get; init; }
 
-    public int Weight { get; set; }
+    public int Weight { get; init; }
 }

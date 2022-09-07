@@ -1,14 +1,13 @@
 ﻿namespace Y.IssueTracker.Web.Models.Account;
 
 using System.ComponentModel.DataAnnotations;
-using Y.IssueTracker.Users.Commands;
 
-public sealed class LoginViewModel : ILoginCommand
+public sealed class LoginViewModel
 {
-    public string Email { get; set; }
+    public string Email { get; init; }
 
-    public string Password { get; set; }
+    public string Password { get; init; }
 
     [Display(Name = "Remember me?")]
-    public bool RememberMe { get; set; }
+    public bool RememberMe { get; init; }
 }

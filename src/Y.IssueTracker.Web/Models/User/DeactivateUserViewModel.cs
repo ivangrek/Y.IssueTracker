@@ -1,10 +1,8 @@
 ﻿namespace Y.IssueTracker.Web.Models.User;
 
-using Users.Commands;
-
-public sealed class DeactivateUserViewModel : IDeactivateCommand
+public sealed class DeactivateUserViewModel
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 
-    public string Name { get; set; }
+    public string Name { get; init; }
 }

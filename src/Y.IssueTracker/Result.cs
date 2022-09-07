@@ -1,6 +1,6 @@
 ﻿namespace Y.IssueTracker;
 
-internal interface IResultWithErrorBuilder
+public interface IResultWithErrorBuilder
 {
     IResultWithErrorBuilder WithError(string value);
 
@@ -11,7 +11,7 @@ internal interface IResultWithErrorBuilder
     IResult Build();
 }
 
-internal sealed class Result : IResult
+public sealed class Result : IResult
 {
     public static IResult Success()
     {

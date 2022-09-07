@@ -3,30 +3,40 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Priority;
-using Priorities;
+using Y.IssueTracker.Priorities.Commands;
+using Y.IssueTracker.Priorities.Queries;
 using Y.IssueTracker.Web.Infrastructure;
+using Y.IssueTracker.Web.Services;
 
 [Authorize(Roles = "Administrator,Manager")]
 public sealed class PriorityController : Controller
 {
-    private readonly IPriorityCommandService priorityCommandService;
-    private readonly IPriorityQueryService priorityQueryService;
+    private readonly IPriorityService priorityService;
 
     public PriorityController(
-        IPriorityCommandService priorityCommandService,
-        IPriorityQueryService priorityQueryService)
+        IPriorityService priorityService)
     {
-        this.priorityQueryService = priorityQueryService;
-        this.priorityCommandService = priorityCommandService;
+        this.priorityService = priorityService;
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> IndexAsync(int? page, int? pageCount)
     {
-        var priorities = await this.priorityQueryService
-            .QueryAllAsync();
+        if (page < 1 || pageCount < 1)
+        {
+            return NotFound();
+        }
 
-        return View(priorities);
+        var query = new GetAllQuery
+        {
+            Page = page ?? 1,
+            PageCount = pageCount ?? int.MaxValue
+        };
+
+        var result = await this.priorityService
+            .HandleAsync(query);
+
+        return View(result);
     }
 
     [HttpGet]
@@ -39,10 +49,16 @@ public sealed class PriorityController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(CreatePriorityViewModel viewModel)
+    public async Task<IActionResult> CreateAsync(CreatePriorityViewModel viewModel)
     {
-        var result = await this.priorityCommandService
-            .ExecuteAsync(viewModel);
+        var command = new CreateCommand
+        {
+            Name = viewModel.Name,
+            Weight = viewModel.Weight
+        };
+
+        var result = await this.priorityService
+            .HandleAsync(command);
 
         if (result.Status is ResultStatus.Success)
         {
@@ -56,24 +72,29 @@ public sealed class PriorityController : Controller
             return View(viewModel);
         }
 
-        return BadRequest();
+        return StatusCode(StatusCodes.Status500InternalServerError);
     }
 
     [HttpGet]
-    public async Task<IActionResult> Update(Guid id)
+    public async Task<IActionResult> UpdateAsync(Guid id)
     {
-        var priority = await this.priorityQueryService
-            .QueryByIdAsync(id);
-
-        if (priority is null || !priority.IsActive)
+        var query = new GetByIdQuery
         {
-            return BadRequest();
+            Id = id
+        };
+
+        var result = await this.priorityService
+            .HandleAsync(query);
+
+        if (result is null || !result.IsActive)
+        {
+            return NotFound();
         }
 
         var viewModel = new UpdatePriorityViewModel
         {
-            Name = priority.Name,
-            Weight = priority.Weight
+            Name = result.Name,
+            Weight = result.Weight
         };
 
         return View(viewModel);
@@ -81,10 +102,17 @@ public sealed class PriorityController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Update(UpdatePriorityViewModel viewModel)
+    public async Task<IActionResult> UpdateAsync(UpdatePriorityViewModel viewModel)
     {
-        var result = await this.priorityCommandService
-            .ExecuteAsync(viewModel);
+        var command = new UpdateCommand
+        {
+            Id = viewModel.Id,
+            Name = viewModel.Name,
+            Weight = viewModel.Weight
+        };
+
+        var result = await this.priorityService
+            .HandleAsync(command);
 
         if (result.Status is ResultStatus.Success)
         {
@@ -98,110 +126,29 @@ public sealed class PriorityController : Controller
             return View(viewModel);
         }
 
-        return BadRequest();
+        return StatusCode(StatusCodes.Status500InternalServerError);
     }
 
     [HttpGet]
-    [Authorize(Roles = "Administrator")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> ActivateAsync(Guid id)
     {
-        var priority = await this.priorityQueryService
-            .QueryByIdAsync(id);
-
-        if (priority is null)
+        var query = new GetByIdQuery
         {
-            return BadRequest();
-        }
-
-        var viewModel = new DeletePriorityViewModel
-        {
-            Id = priority.Id,
-            Name = priority.Name
+            Id = id
         };
 
-        return View(viewModel);
-    }
+        var result = await this.priorityService
+            .HandleAsync(query);
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Administrator")]
-    public async Task<IActionResult> Delete(DeletePriorityViewModel viewModel)
-    {
-        var result = await this.priorityCommandService
-            .ExecuteAsync(viewModel);
-
-        if (result.Status is ResultStatus.Success)
+        if (result is null || result.IsActive)
         {
-            return RedirectToAction(nameof(Index));
-        }
-
-        if (result.Status is ResultStatus.Invalid)
-        {
-            ModelState.AddModelErrors(result.Errors);
-
-            return View(viewModel);
-        }
-
-        return BadRequest();
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Deactivate(Guid id)
-    {
-        var priority = await this.priorityQueryService
-            .QueryByIdAsync(id);
-
-        if (priority is null || !priority.IsActive)
-        {
-            return BadRequest();
-        }
-
-        var viewModel = new DeactivateCategoryViewModel
-        {
-            Id = priority.Id,
-            Name = priority.Name
-        };
-
-        return View(viewModel);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Deactivate(DeactivateCategoryViewModel viewModel)
-    {
-        var result = await this.priorityCommandService
-            .ExecuteAsync(viewModel);
-
-        if (result.Status is ResultStatus.Success)
-        {
-            return RedirectToAction(nameof(Index));
-        }
-
-        if (result.Status is ResultStatus.Invalid)
-        {
-            ModelState.AddModelErrors(result.Errors);
-
-            return View(viewModel);
-        }
-
-        return BadRequest();
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Activate(Guid id)
-    {
-        var priority = await this.priorityQueryService
-            .QueryByIdAsync(id);
-
-        if (priority is null || priority.IsActive)
-        {
-            return BadRequest();
+            return NotFound();
         }
 
         var viewModel = new ActivatePriorityViewModel
         {
-            Id = priority.Id,
-            Name = priority.Name
+            Id = result.Id,
+            Name = result.Name
         };
 
         return View(viewModel);
@@ -209,10 +156,15 @@ public sealed class PriorityController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Activate(ActivatePriorityViewModel viewModel)
+    public async Task<IActionResult> ActivateAsync(ActivatePriorityViewModel viewModel)
     {
-        var result = await this.priorityCommandService
-            .ExecuteAsync(viewModel);
+        var command = new ActivateCommand
+        {
+            Id = viewModel.Id
+        };
+
+        var result = await this.priorityService
+            .HandleAsync(command);
 
         if (result.Status is ResultStatus.Success)
         {
@@ -226,6 +178,112 @@ public sealed class PriorityController : Controller
             return View(viewModel);
         }
 
-        return BadRequest();
+        return StatusCode(StatusCodes.Status500InternalServerError);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> DeactivateAsync(Guid id)
+    {
+        var query = new GetByIdQuery
+        {
+            Id = id
+        };
+
+        var result = await this.priorityService
+            .HandleAsync(query);
+
+        if (result is null || !result.IsActive)
+        {
+            return NotFound();
+        }
+
+        var viewModel = new DeactivateCategoryViewModel
+        {
+            Id = result.Id,
+            Name = result.Name
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeactivateAsync(DeactivateCategoryViewModel viewModel)
+    {
+        var command = new DeactivateCommand
+        {
+            Id = viewModel.Id
+        };
+
+        var result = await this.priorityService
+            .HandleAsync(command);
+
+        if (result.Status is ResultStatus.Success)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (result.Status is ResultStatus.Invalid)
+        {
+            ModelState.AddModelErrors(result.Errors);
+
+            return View(viewModel);
+        }
+
+        return StatusCode(StatusCodes.Status500InternalServerError);
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Administrator")]
+    public async Task<IActionResult> DeleteAsync(Guid id)
+    {
+        var query = new GetByIdQuery
+        {
+            Id = id
+        };
+
+        var result = await this.priorityService
+            .HandleAsync(query);
+
+        if (result is null)
+        {
+            return NotFound();
+        }
+
+        var viewModel = new DeletePriorityViewModel
+        {
+            Id = result.Id,
+            Name = result.Name
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Administrator")]
+    public async Task<IActionResult> DeleteAsync(DeletePriorityViewModel viewModel)
+    {
+        var command = new DeleteCommand
+        {
+            Id = viewModel.Id
+        };
+
+        var result = await this.priorityService
+            .HandleAsync(command);
+
+        if (result.Status is ResultStatus.Success)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (result.Status is ResultStatus.Invalid)
+        {
+            ModelState.AddModelErrors(result.Errors);
+
+            return View(viewModel);
+        }
+
+        return StatusCode(StatusCodes.Status500InternalServerError);
     }
 }

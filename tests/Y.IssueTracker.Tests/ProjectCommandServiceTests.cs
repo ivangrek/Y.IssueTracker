@@ -30,14 +30,14 @@ internal sealed class ProjectCommandServiceTests
     public async Task CreateCommand_invalid_with_empty_name()
     {
         // Arrange
-        var createCommandMock = new Mock<ICreateCommand>();
-
-        createCommandMock.SetupGet(x => x.Name)
-            .Returns(string.Empty);
+        var createCommand = new CreateCommand
+        {
+            Name = string.Empty
+        };
 
         // Act
         var result = await this.projectCommandService
-            .ExecuteAsync(createCommandMock.Object);
+            .HandleAsync(createCommand);
 
         // Assert
         Assert.That(result.Status, Is.EqualTo(ResultStatus.Invalid));
@@ -48,14 +48,14 @@ internal sealed class ProjectCommandServiceTests
     public async Task CreateCommand_should_create_project()
     {
         // Arrange
-        var createCommandMock = new Mock<ICreateCommand>();
-
-        createCommandMock.SetupGet(x => x.Name)
-            .Returns("Project");
+        var createCommand = new CreateCommand
+        {
+            Name = Guid.NewGuid().ToString()
+        };
 
         // Act
         var result = await this.projectCommandService
-            .ExecuteAsync(createCommandMock.Object);
+            .HandleAsync(createCommand);
 
         // Assert
         Assert.That(result.Status, Is.EqualTo(ResultStatus.Success));
@@ -69,14 +69,14 @@ internal sealed class ProjectCommandServiceTests
     public async Task UpdateCommand_should_invalid_with_empty_name()
     {
         // Arrange
-        var updateCommandMock = new Mock<IUpdateCommand>();
-
-        updateCommandMock.SetupGet(x => x.Name)
-            .Returns(string.Empty);
+        var updateCommand = new UpdateCommand
+        {
+            Name = string.Empty
+        };
 
         // Act
         var result = await this.projectCommandService
-            .ExecuteAsync(updateCommandMock.Object);
+            .HandleAsync(updateCommand);
 
         // Assert
         Assert.That(result.Status, Is.EqualTo(ResultStatus.Invalid));
@@ -87,14 +87,14 @@ internal sealed class ProjectCommandServiceTests
     public async Task UpdateCommand_should_failure_when_not_found()
     {
         // Arrange
-        var updateCommandMock = new Mock<IUpdateCommand>();
-
-        updateCommandMock.SetupGet(x => x.Name)
-            .Returns("Project");
+        var updateCommand = new UpdateCommand
+        {
+            Name = Guid.NewGuid().ToString()
+        };
 
         // Act
         var result = await this.projectCommandService
-            .ExecuteAsync(updateCommandMock.Object);
+            .HandleAsync(updateCommand);
 
         // Assert
         Assert.That(result.Status, Is.EqualTo(ResultStatus.Failure));
@@ -107,7 +107,7 @@ internal sealed class ProjectCommandServiceTests
         // Arrange
         var project = new Project(Guid.Empty)
         {
-            Name = "Project",
+            Name = Guid.NewGuid().ToString(),
             IsActive = false
         };
 
@@ -115,14 +115,14 @@ internal sealed class ProjectCommandServiceTests
             .Setup(x => x.FindByIdAsync(It.IsAny<Guid>()))
             .Returns(Task.FromResult(project));
 
-        var updateCommandMock = new Mock<IUpdateCommand>();
-
-        updateCommandMock.SetupGet(x => x.Name)
-            .Returns("Project new");
+        var updateCommand = new UpdateCommand
+        {
+            Name = Guid.NewGuid().ToString()
+        };
 
         // Act
         var result = await this.projectCommandService
-            .ExecuteAsync(updateCommandMock.Object);
+            .HandleAsync(updateCommand);
 
         // Assert
         Assert.That(result.Status, Is.EqualTo(ResultStatus.Failure));
@@ -133,10 +133,9 @@ internal sealed class ProjectCommandServiceTests
     public async Task UpdateCommand_should_update_project()
     {
         // Arrange
-        var projectName = "Project new";
         var project = new Project(Guid.Empty)
         {
-            Name = "Project",
+            Name = Guid.NewGuid().ToString(),
             IsActive = true
         };
 
@@ -144,18 +143,18 @@ internal sealed class ProjectCommandServiceTests
             .Setup(x => x.FindByIdAsync(It.IsAny<Guid>()))
             .Returns(Task.FromResult(project));
 
-        var updateCommandMock = new Mock<IUpdateCommand>();
-
-        updateCommandMock.SetupGet(x => x.Name)
-            .Returns(projectName);
+        var updateCommand = new UpdateCommand
+        {
+            Name = Guid.NewGuid().ToString()
+        };
 
         // Act
         var result = await this.projectCommandService
-            .ExecuteAsync(updateCommandMock.Object);
+            .HandleAsync(updateCommand);
 
         // Assert
         Assert.That(result.Status, Is.EqualTo(ResultStatus.Success));
-        Assert.That(project.Name, Is.EqualTo(projectName));
+        Assert.That(project.Name, Is.EqualTo(updateCommand.Name));
         Assert.That(project.IsActive, Is.True);
     }
 

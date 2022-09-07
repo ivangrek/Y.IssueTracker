@@ -1,10 +1,11 @@
 ﻿namespace Y.IssueTracker.Priorities;
 
 using Results;
+using Y.IssueTracker.Priorities.Queries;
 
 public interface IPriorityQueryService
 {
-    Task<IPriorityResult[]> QueryAllAsync();
+    Task<PriorityResult[]> HandleAsync(GetAllQuery query);
 
-    Task<IPriorityResult> QueryByIdAsync(Guid id);
+    Task<PriorityResult> HandleAsync(GetByIdQuery query);
 }

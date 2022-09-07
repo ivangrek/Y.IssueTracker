@@ -1,25 +1,24 @@
 ﻿namespace Y.IssueTracker.Web.Models.Issue;
 
 using System.ComponentModel;
-using Issues.Commands;
 
-public sealed class CreateIssueViewModel : ICreateCommand
+public sealed class CreateIssueViewModel
 {
-    public string Name { get; set; }
+    public string Name { get; init; }
 
-    public string Description { get; set; }
+    public string Description { get; init; }
 
     [DisplayName("Project")]
-    public Guid ProjectId { get; set; }
+    public Guid ProjectId { get; init; }
 
     [DisplayName("Category")]
-    public Guid CategoryId { get; set; }
+    public Guid CategoryId { get; init; }
 
     [DisplayName("Priority")]
-    public Guid PriorityId { get; set; }
+    public Guid PriorityId { get; init; }
 
     [DisplayName("Assigned")]
-    public Guid AssignedUserId { get; set; }
+    public Guid AssignedUserId { get; init; }
 
-    public Guid AuthorUserId { get; set; }
+    public Guid AuthorUserId { get; init; }
 }

@@ -1,12 +1,13 @@
 ﻿namespace Y.IssueTracker.Issues;
 
 using Results;
+using Y.IssueTracker.Issues.Queries;
 
 public interface IIssueQueryService
 {
-    Task<IIssueForListItemResult[]> QueryIssuesForListAsync();
+    Task<IssueForListItemResult[]> HandleAsync(GetIssuesForListQuery query);
 
-    Task<IIssueResult> QueryByIdAsync(Guid id);
+    Task<IssueResult> HandleAsync(GetByIdQuery query);
 
-    Task<IIssueForViewResult> QueryIssueForViewAsync(Guid id);
+    Task<IssueForViewResult> HandleAsync(GetIssueForViewQuery query);
 }

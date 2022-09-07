@@ -16,13 +16,13 @@ internal sealed class PriorityCommandService : IPriorityCommandService
         this.priorityRepository = priorityRepository;
     }
 
-    public async Task<IResult> ExecuteAsync(ICreateCommand command)
+    public async Task<IResult> HandleAsync(CreateCommand command)
     {
         if (string.IsNullOrWhiteSpace(command.Name))
         {
             return Result.Invalid()
-               .WithError(nameof(command.Name), $"{nameof(command.Name)} is required.")
-               .Build();
+                .WithError(nameof(command.Name), $"{nameof(command.Name)} is required.")
+                .Build();
         }
 
         var priority = new Priority(Guid.NewGuid())
@@ -41,13 +41,13 @@ internal sealed class PriorityCommandService : IPriorityCommandService
         return Result.Success();
     }
 
-    public async Task<IResult> ExecuteAsync(IUpdateCommand command)
+    public async Task<IResult> HandleAsync(UpdateCommand command)
     {
         if (string.IsNullOrWhiteSpace(command.Name))
         {
             return Result.Invalid()
-               .WithError(nameof(command.Name), $"{nameof(command.Name)} is required.")
-               .Build();
+                .WithError(nameof(command.Name), $"{nameof(command.Name)} is required.")
+                .Build();
         }
 
         var priority = await this.priorityRepository
@@ -76,7 +76,7 @@ internal sealed class PriorityCommandService : IPriorityCommandService
         return Result.Success();
     }
 
-    public async Task<IResult> ExecuteAsync(IDeleteCommand command)
+    public async Task<IResult> HandleAsync(DeleteCommand command)
     {
         var priority = await this.priorityRepository
             .FindByIdAsync(command.Id);
@@ -97,7 +97,7 @@ internal sealed class PriorityCommandService : IPriorityCommandService
         return Result.Success();
     }
 
-    public async Task<IResult> ExecuteAsync(IDeactivateCommand command)
+    public async Task<IResult> HandleAsync(DeactivateCommand command)
     {
         var priority = await this.priorityRepository
             .FindByIdAsync(command.Id);
@@ -124,7 +124,7 @@ internal sealed class PriorityCommandService : IPriorityCommandService
         return Result.Success();
     }
 
-    public async Task<IResult> ExecuteAsync(IActivateCommand command)
+    public async Task<IResult> HandleAsync(ActivateCommand command)
     {
         var priority = await this.priorityRepository
             .FindByIdAsync(command.Id);

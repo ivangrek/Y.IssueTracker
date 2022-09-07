@@ -1,10 +1,8 @@
 ﻿namespace Y.IssueTracker.Web.Models.Category;
 
-using Categories.Commands;
-
-public sealed class DeactivateCategoryViewModel : IDeactivateCommand
+public sealed class DeactivateCategoryViewModel
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 
-    public string Name { get; set; }
+    public string Name { get; init; }
 }

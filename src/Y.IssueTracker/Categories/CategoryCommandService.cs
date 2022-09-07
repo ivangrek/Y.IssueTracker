@@ -16,7 +16,7 @@ internal sealed class CategoryCommandService : ICategoryCommandService
         this.categoryRepository = categoryRepository;
     }
 
-    public async Task<IResult> ExecuteAsync(ICreateCommand command)
+    public async Task<IResult> HandleAsync(CreateCommand command)
     {
         if (string.IsNullOrWhiteSpace(command.Name))
         {
@@ -40,7 +40,7 @@ internal sealed class CategoryCommandService : ICategoryCommandService
         return Result.Success();
     }
 
-    public async Task<IResult> ExecuteAsync(IUpdateCommand command)
+    public async Task<IResult> HandleAsync(UpdateCommand command)
     {
         if (string.IsNullOrWhiteSpace(command.Name))
         {
@@ -74,7 +74,7 @@ internal sealed class CategoryCommandService : ICategoryCommandService
         return Result.Success();
     }
 
-    public async Task<IResult> ExecuteAsync(IDeleteCommand command)
+    public async Task<IResult> HandleAsync(DeleteCommand command)
     {
         var category = await this.categoryRepository
             .FindByIdAsync(command.Id);
@@ -95,34 +95,7 @@ internal sealed class CategoryCommandService : ICategoryCommandService
         return Result.Success();
     }
 
-    public async Task<IResult> ExecuteAsync(IDeactivateCommand command)
-    {
-        var category = await this.categoryRepository
-            .FindByIdAsync(command.Id);
-
-        if (category is null)
-        {
-            return Result.Failure()
-                .WithError("Not exist.")
-                .Build();
-        }
-
-        if (!category.IsActive)
-        {
-            return Result.Failure()
-                .WithError("Invalid operation.")
-                .Build();
-        }
-
-        category.IsActive = false;
-
-        await this.unitOfWork
-            .CommitAsync();
-
-        return Result.Success();
-    }
-
-    public async Task<IResult> ExecuteAsync(IActivateCommand command)
+    public async Task<IResult> HandleAsync(ActivateCommand command)
     {
         var category = await this.categoryRepository
             .FindByIdAsync(command.Id);
@@ -142,6 +115,33 @@ internal sealed class CategoryCommandService : ICategoryCommandService
         }
 
         category.IsActive = true;
+
+        await this.unitOfWork
+            .CommitAsync();
+
+        return Result.Success();
+    }
+
+    public async Task<IResult> HandleAsync(DeactivateCommand command)
+    {
+        var category = await this.categoryRepository
+            .FindByIdAsync(command.Id);
+
+        if (category is null)
+        {
+            return Result.Failure()
+                .WithError("Not exist.")
+                .Build();
+        }
+
+        if (!category.IsActive)
+        {
+            return Result.Failure()
+                .WithError("Invalid operation.")
+                .Build();
+        }
+
+        category.IsActive = false;
 
         await this.unitOfWork
             .CommitAsync();

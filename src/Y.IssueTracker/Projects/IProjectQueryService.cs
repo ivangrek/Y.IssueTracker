@@ -1,10 +1,11 @@
 ﻿namespace Y.IssueTracker.Projects;
 
 using Results;
+using Y.IssueTracker.Projects.Queries;
 
 public interface IProjectQueryService
 {
-    Task<IProjectResult[]> QueryAllAsync();
+    Task<ProjectResult[]> HandleAsync(GetAllQuery query);
 
-    Task<IProjectResult> QueryByIdAsync(Guid id);
+    Task<ProjectResult> HandleAsync(GetByIdQuery query);
 }

@@ -1,19 +1,20 @@
 ﻿namespace Y.IssueTracker.Web.Controllers;
 
-using Comments;
 using Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Comment;
+using Y.IssueTracker.Comments.Commands;
+using Y.IssueTracker.Web.Services;
 
 [Authorize]
 public sealed class CommentController : Controller
 {
-    private readonly ICommentCommandService commentCommandService;
+    private readonly ICommentService commentService;
 
-    public CommentController(ICommentCommandService commentCommandService)
+    public CommentController(ICommentService commentService)
     {
-        this.commentCommandService = commentCommandService;
+        this.commentService = commentService;
     }
 
     [HttpGet]
@@ -29,12 +30,17 @@ public sealed class CommentController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(CreateCommentViewModel viewModel)
+    public async Task<IActionResult> CreateAsync(CreateCommentViewModel viewModel)
     {
-        viewModel.AuthorUserId = User.GetUserId();
+        var command = new CreateCommand
+        {
+            IssueId = viewModel.IssueId,
+            Text = viewModel.Text,
+            AuthorUserId = User.GetUserId()
+        };
 
-        var result = await this.commentCommandService
-            .ExecuteAsync(viewModel);
+        var result = await this.commentService
+            .HandleAsync(command);
 
         if (result.Status is ResultStatus.Success)
         {
@@ -48,6 +54,6 @@ public sealed class CommentController : Controller
             return View(viewModel);
         }
 
-        return BadRequest();
+        return StatusCode(StatusCodes.Status500InternalServerError);
     }
 }

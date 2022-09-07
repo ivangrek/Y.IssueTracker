@@ -1,10 +1,8 @@
 ﻿namespace Y.IssueTracker.Web.Models.Issue;
 
-using Issues.Commands;
-
-public sealed class DeleteIssueViewModel : IDeleteCommand
+public sealed class DeleteIssueViewModel
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 
-    public string Name { get; set; }
+    public string Name { get; init; }
 }

@@ -6,6 +6,7 @@ using Y.IssueTracker.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container
 builder.Services.AddInfrastructure();
 
 builder.Services.AddHttpContextAccessor();
@@ -55,6 +56,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
+// Configure services
 app.UseStatusCodePagesWithRedirects("/Error");
 
 if (app.Environment.IsDevelopment())

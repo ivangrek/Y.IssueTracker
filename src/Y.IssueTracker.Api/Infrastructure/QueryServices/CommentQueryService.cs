@@ -24,14 +24,23 @@ internal sealed class CommentQueryService : ICommentQueryService
             .Comments
             .AsNoTracking()
             .Where(x => x.IssueId == query.IssueId)
-            .Join(userQuery, x => x.AuthorUserId, x => x.Id, (x, y) => new { comment = x, user = y })
+            // TODO
+            //.Join(userQuery, x => x.AuthorUserId, x => x.Id, (x, y) => new { comment = x, user = y })
+            //.Select(x => new CommentForViewResult
+            //{
+            //    Id = x.comment.Id,
+            //    Text = x.comment.Text,
+            //    AuthorUserId = x.user.Id,
+            //    AuthorUserName = x.user.Name,
+            //    CreatedOn = x.comment.CreatedOn
+            //})
             .Select(x => new CommentForViewResult
             {
-                Id = x.comment.Id,
-                Text = x.comment.Text,
-                AuthorUserId = x.user.Id,
-                AuthorUserName = x.user.Name,
-                CreatedOn = x.comment.CreatedOn
+                Id = x.Id,
+                Text = x.Text,
+                AuthorUserId = Guid.Empty,
+                AuthorUserName = "--Not implement--",
+                CreatedOn = x.CreatedOn
             })
             .ToArrayAsync();
     }

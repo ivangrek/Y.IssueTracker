@@ -60,7 +60,7 @@ public sealed class IssueController : Controller
     public async Task<IActionResult> ViewAsync(Guid id)
     {
         var issueTask = this.issueService
-            .HandleAsync(new Issues.Queries.GetIssueForViewQuery { Id = id });
+            .HandleAsync(new GetIssueForViewQuery { Id = id });
 
         var commentsTask = this.commentService
             .HandleAsync(new GetCommentsForViewQuery { IssueId = id });
@@ -125,7 +125,7 @@ public sealed class IssueController : Controller
     [HttpGet]
     public async Task<IActionResult> UpdateAsync(Guid id)
     {
-        var query = new Issues.Queries.GetByIdQuery
+        var query = new GetByIdQuery
         {
             Id = id
         };
@@ -194,7 +194,7 @@ public sealed class IssueController : Controller
     [HttpGet]
     public async Task<IActionResult> DeleteAsync(Guid id)
     {
-        var query = new Issues.Queries.GetByIdQuery
+        var query = new GetByIdQuery
         {
             Id = id
         };

@@ -6,10 +6,10 @@ using static System.Net.Mime.MediaTypeNames;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 
-// Add services to the container.
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -25,13 +25,14 @@ builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider
-        .GetRequiredService<ApplicationDbContext>();
+// Configure services
+using var serviceScope = app.Services
+    .CreateScope();
 
-    dbContext.Database.Migrate();
-}
+var dbContext = serviceScope.ServiceProvider
+    .GetRequiredService<ApplicationDbContext>();
+
+dbContext.Database.Migrate();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

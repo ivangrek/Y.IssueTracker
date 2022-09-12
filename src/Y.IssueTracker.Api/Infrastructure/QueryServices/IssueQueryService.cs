@@ -39,8 +39,9 @@ internal sealed class IssueQueryService : IIssueQueryService
         var resultQuery = issueQuery
             .Join(projectQuery, x => x.ProjectId, x => x.Id, (x, y) => new { issue = x, project = y })
             .Join(categoryQuery, x => x.issue.CategoryId, x => x.Id, (x, y) => new { x.issue, x.project, category = y })
-            .Join(priorityQuery, x => x.issue.PriorityId, x => x.Id, (x, y) => new { x.issue, x.project, x.category, priority = y })
-            .Join(userQuery, x => x.issue.AuthorUserId, x => x.Id, (x, y) => new { x.issue, x.project, x.category, x.priority, author = y });
+            .Join(priorityQuery, x => x.issue.PriorityId, x => x.Id, (x, y) => new { x.issue, x.project, x.category, priority = y });
+            // TODO
+            //.Join(userQuery, x => x.issue.AuthorUserId, x => x.Id, (x, y) => new { x.issue, x.project, x.category, x.priority, author = y });
 
         return resultQuery
             .GroupJoin(userQuery, x => x.issue.AssignedUserId, x => x.Id, (x, y) => new { result = x, assigned = y })
@@ -54,7 +55,8 @@ internal sealed class IssueQueryService : IIssueQueryService
                 Priority = x.result.priority.Name,
                 Status = x.result.issue.Status,
                 AssignedUserName = x.assigned == null ? string.Empty : x.assigned.Name,
-                AuthorUserName = x.result.author.Name,
+                // TODO
+                AuthorUserName = "--Not implement--", //x.result.author.Name,
                 CreatedOn = x.result.issue.CreatedOn
             })
             .ToArrayAsync();
@@ -108,8 +110,9 @@ internal sealed class IssueQueryService : IIssueQueryService
         var resultQuery = issueQuery
             .Join(projectQuery, x => x.ProjectId, x => x.Id, (x, y) => new { issue = x, project = y })
             .Join(categoryQuery, x => x.issue.CategoryId, x => x.Id, (x, y) => new { x.issue, x.project, category = y })
-            .Join(priorityQuery, x => x.issue.PriorityId, x => x.Id, (x, y) => new { x.issue, x.project, x.category, priority = y })
-            .Join(userQuery, x => x.issue.AuthorUserId, x => x.Id, (x, y) => new { x.issue, x.project, x.category, x.priority, author = y });
+            .Join(priorityQuery, x => x.issue.PriorityId, x => x.Id, (x, y) => new { x.issue, x.project, x.category, priority = y });
+            // TODO
+            //.Join(userQuery, x => x.issue.AuthorUserId, x => x.Id, (x, y) => new { x.issue, x.project, x.category, x.priority, author = y });
 
         return resultQuery
             .GroupJoin(userQuery, x => x.issue.AssignedUserId, x => x.Id, (x, y) => new { result = x, assigned = y })
@@ -125,8 +128,9 @@ internal sealed class IssueQueryService : IIssueQueryService
                 Status = x.result.issue.Status,
                 AssignedUserId = x.assigned == null ? Guid.Empty : x.assigned.Id,
                 AssignedUserName = x.assigned == null ? string.Empty : x.assigned.Name,
-                AuthorUserId = x.result.author.Id,
-                AuthorUserName = x.result.author.Name,
+                // TODO
+                AuthorUserId = Guid.Empty, //x.result.author.Id,
+                AuthorUserName = "--Not implement--", //x.result.author.Name,
                 CreatedOn = x.result.issue.CreatedOn
             })
             .SingleOrDefaultAsync();
